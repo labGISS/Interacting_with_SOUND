@@ -319,8 +319,9 @@ var ContinuousLayout = function () {
           s.radialX && _radius.x(s.radialX);
           s.radialY && _radius.y(s.radialY);
         }
-        var _center = d3.forceCenter(s.currentBoundingBox.w / 2, s.currentBoundingBox.h / 2);
-        l.simulation.force('collide', _collide).force('link', _link).force('many-body', _manyBody).force('x', _x).force('y', _y).force("center", _center);
+        // let _center = d3.forceCenter(s.currentBoundingBox.w / 2, s.currentBoundingBox.h / 2);
+        l.simulation.force('collide', _collide).force('link', _link).force('many-body', _manyBody).force('x', _x).force('y', _y);
+        // .force("center", _center);
         _radius && l.simulation.force('radius', _radius);
         l.simulation.on("tick", function () {
           l.tick();

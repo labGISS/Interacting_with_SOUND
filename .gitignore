@@ -37,7 +37,7 @@ media
 .idea/**/libraries
 
 # All
-.idea/
+.idea
 
 # File-based project format
 *.iws

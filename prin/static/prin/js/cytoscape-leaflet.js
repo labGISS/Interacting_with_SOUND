@@ -8,76 +8,6 @@
 
   var L__default = /*#__PURE__*/_interopDefaultLegacy(L);
 
-  function _arrayWithHoles(arr) {
-    if (Array.isArray(arr)) return arr;
-  }
-
-  var arrayWithHoles = _arrayWithHoles;
-
-  function _iterableToArrayLimit(arr, i) {
-    if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return;
-    var _arr = [];
-    var _n = true;
-    var _d = false;
-    var _e = undefined;
-
-    try {
-      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
-        _arr.push(_s.value);
-
-        if (i && _arr.length === i) break;
-      }
-    } catch (err) {
-      _d = true;
-      _e = err;
-    } finally {
-      try {
-        if (!_n && _i["return"] != null) _i["return"]();
-      } finally {
-        if (_d) throw _e;
-      }
-    }
-
-    return _arr;
-  }
-
-  var iterableToArrayLimit = _iterableToArrayLimit;
-
-  function _arrayLikeToArray(arr, len) {
-    if (len == null || len > arr.length) len = arr.length;
-
-    for (var i = 0, arr2 = new Array(len); i < len; i++) {
-      arr2[i] = arr[i];
-    }
-
-    return arr2;
-  }
-
-  var arrayLikeToArray = _arrayLikeToArray;
-
-  function _unsupportedIterableToArray(o, minLen) {
-    if (!o) return;
-    if (typeof o === "string") return arrayLikeToArray(o, minLen);
-    var n = Object.prototype.toString.call(o).slice(8, -1);
-    if (n === "Object" && o.constructor) n = o.constructor.name;
-    if (n === "Map" || n === "Set") return Array.from(o);
-    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return arrayLikeToArray(o, minLen);
-  }
-
-  var unsupportedIterableToArray = _unsupportedIterableToArray;
-
-  function _nonIterableRest() {
-    throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-  }
-
-  var nonIterableRest = _nonIterableRest;
-
-  function _slicedToArray(arr, i) {
-    return arrayWithHoles(arr) || iterableToArrayLimit(arr, i) || unsupportedIterableToArray(arr, i) || nonIterableRest();
-  }
-
-  var slicedToArray = _slicedToArray;
-
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
       throw new TypeError("Cannot call a class as a function");
@@ -121,6 +51,20 @@
 
   var defineProperty = _defineProperty;
 
+  // Simple, internal Object.assign() polyfill for options objects etc.
+  var assign = Object.assign != null ? Object.assign.bind(Object) : function (tgt) {
+    for (var _len = arguments.length, srcs = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+      srcs[_key - 1] = arguments[_key];
+    }
+
+    srcs.forEach(function (src) {
+      Object.keys(src).forEach(function (k) {
+        return tgt[k] = src[k];
+      });
+    });
+    return tgt;
+  };
+
   function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
   function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -140,6 +84,10 @@
   var DEFAULT_FIT_PADDING = [50, 50];
   var DEFAULT_ANIMATION_DURATION = 500;
   var HIDDEN_CLASS = 'cytoscape-map__hidden';
+  var DEFAULT_MAP_MOVE_DELAY = 0;
+  var DEFAULT_LAYOUT = {
+    name: 'preset'
+  };
   var MapHandler = /*#__PURE__*/function () {
     /** @type cytoscape.Core */
 
@@ -164,6 +112,7 @@
     /** @type cytoscape.Position | undefined */
 
     /** @type boolean */
+    // onMapMoveStartBound = this.onMapMoveStart.bind(this);
 
     /**
      * @param {cytoscape.Core} cy
@@ -205,16 +154,19 @@
 
       defineProperty(this, "onMapMoveBound", this.onMapMove.bind(this));
 
+      defineProperty(this, "onMapMoveEndBound", this.onMapMoveEnd.bind(this));
+
       defineProperty(this, "onGraphAddBound", this.onGraphAdd.bind(this));
 
       defineProperty(this, "onGraphResizeBound", this.onGraphResize.bind(this));
 
       defineProperty(this, "onGraphDragFreeBound", this.onGraphDragFree.bind(this));
 
+      defineProperty(this, "saveLayoutPositionAsLatLngBound", this.saveLayoutPositionAsLatLng.bind(this));
+
       this.cy = cy;
       this.mapOptions = mapOptions;
       this.options = options;
-      this.fitted = false;
 
       if (!(this.options.getPosition instanceof Function)) {
         throw new Error('getPosition should be a function');
@@ -233,13 +185,24 @@
 
       var graphContainer =
       /** @type HTMLElement */
-      this.cy.container();
-      graphContainer.addEventListener('mousedown', this.onGraphContainerMouseDownBound);
-      graphContainer.addEventListener('mousemove', this.onGraphContainerMouseMoveBound);
+      this.cy.container(); // graphContainer.addEventListener('mousedown', this.onGraphContainerMouseDownBound);
+      // graphContainer.addEventListener('mousemove', this.onGraphContainerMouseMoveBound);
+
+      this.cy.on('tapstart', this.onGraphContainerMouseDownBound);
       graphContainer.addEventListener('wheel', this.onGraphContainerWheelBound);
       this.cy.on('add', this.onGraphAddBound);
       this.cy.on('resize', this.onGraphResizeBound);
-      this.cy.on('dragfree', this.onGraphDragFreeBound); // Map container
+      this.cy.on('dragfree', this.onGraphDragFreeBound);
+      this.cy.on('cxttap', "node", function (event) {
+        event.target.unlock();
+      }); // this.cy.on('layoutstart layoutready layoutstop ready render destroy pan dragpan zoom pinchzoom scrollzoom viewport resize', (evt) => {
+      //   console.log(evt.type);
+      // })
+      //
+      // this.cy.one('render', (evt) => {
+      //   console.log(evt);
+      // })
+      // Map container
 
       this.mapContainer = document.createElement('div');
       this.mapContainer.style.position = 'absolute';
@@ -255,7 +218,9 @@
         animate: false
       }); // Map events
 
-      this.map.on('move', this.onMapMoveBound); // Cytoscape unit viewport
+      this.map.on('move', this.onMapMoveBound); // this.map.on('movestart', this.onMapMoveStartBound);
+
+      this.map.on('moveend', this.onMapMoveEndBound); // Cytoscape unit viewport
 
       this.originalZoom = this.cy.zoom();
       this.originalPan = _objectSpread({}, this.cy.pan());
@@ -289,10 +254,11 @@
         // Cytoscape events
         var graphContainer =
         /** @type HTMLElement */
-        this.cy.container();
-        graphContainer.removeEventListener('mousedown', this.onGraphContainerMouseDownBound);
-        graphContainer.removeEventListener('mousemove', this.onGraphContainerMouseMoveBound);
+        this.cy.container(); // graphContainer.removeEventListener('mousedown', this.onGraphContainerMouseDownBound);
+        // graphContainer.removeEventListener('mousemove', this.onGraphContainerMouseMoveBound);
+
         graphContainer.removeEventListener('wheel', this.onGraphContainerWheelBound);
+        this.cy.off('tapstart', this.onGraphContainerMouseDownBound);
         this.cy.off('add', this.onGraphAddBound);
         this.cy.off('resize', this.onGraphResizeBound);
         this.cy.off('dragfree', this.onGraphDragFreeBound); // Cytoscape config
@@ -304,7 +270,9 @@
         this.originalUserZoomingEnabled = undefined;
         this.originalUserPanningEnabled = undefined; // Map events
 
-        this.map.off('move', this.onMapMoveBound); // Map instance
+        this.map.off('move', this.onMapMoveBound); // this.map.off('dragstart', this.onMapDragStartBound);
+
+        this.map.off('dragend'); // Map instance
 
         this.map.remove();
         this.map = undefined; // Map container
@@ -350,7 +318,83 @@
         }
 
         this.map.fitBounds(bounds, options);
-        this.fitted = true;
+      }
+      /**
+       * Save each node current layout position as the current geographical position.
+       * Node's position is saved into its scratch, as <i>leaflet</i> namespace and <i>currentGeoposition<i> LatLng object
+       * @param {cytoscape.NodeCollection} nodes
+       */
+
+    }, {
+      key: "saveLayoutPositionAsLatLng",
+      value: function saveLayoutPositionAsLatLng() {
+        var _this = this;
+
+        var nodes = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.cy.nodes();
+        nodes.forEach(function (node) {
+          // if (!(node.scratch('leaflet') && node.scratch('leaflet')['currentGeoposition'])) {
+          node.scratch('leaflet', {
+            currentGeoposition: _this.map.containerPointToLatLng(node.position())
+          }); // }
+        });
+      }
+      /**
+       * Delete layout geographic position from each node's scratch
+       * @param nodes
+       */
+
+    }, {
+      key: "deleteLatLngLayoutPosition",
+      value: function deleteLatLngLayoutPosition() {
+        var nodes = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.cy.nodes();
+        nodes.forEach(function (node) {
+          if (node.scratch('leaflet') && node.scratch('leaflet').currentGeoposition) {
+            delete node.scratch('leaflet').currentGeoposition;
+          }
+        });
+      }
+      /**
+       * Update nodes positions (calling node.position() method)
+       * and (optionally) hide nodes without geographical position
+       * @private
+       */
+
+    }, {
+      key: "updateNodePosition",
+      value: function updateNodePosition() {
+        var _this2 = this;
+
+        var nodes = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.cy.nodes();
+        nodes.forEach(function (node) {
+          // let wasLocked = node.locked();
+          // if (wasLocked) node.unlock();
+          node.unlock();
+
+          var position = _this2.getGeographicPosition(node);
+
+          if (position) {
+            node.position(position); // if (this.getNodeLngLat(node)) { // nodes that have native geographical positions cannot be dragged
+
+            node.lock(); // }
+          } // hide nodes without position
+
+
+          if (!position && _this2.options.hideNonPositional) {
+            // const nodesWithoutPosition = nodes.filter(node => !positions[node.id()]);
+            node.addClass(HIDDEN_CLASS).style('display', 'none');
+          }
+        });
+      }
+      /**
+       * @return {cytoscape.LayoutOptions}
+       * @param {*} [customOptions]
+       */
+
+    }, {
+      key: "getLayout",
+      value: function getLayout() {
+        var customOptions = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : undefined;
+        return assign(DEFAULT_LAYOUT, this.options.layout, customOptions);
       }
       /**
        * @private
@@ -359,37 +403,33 @@
     }, {
       key: "enableGeographicPositions",
       value: function enableGeographicPositions() {
-        var _this = this,
-            _this$options$animati3;
+        var _this3 = this;
 
         var nodes = this.cy.nodes();
         this.originalPositions = Object.fromEntries(nodes.map(function (node) {
           return [node.id(), _objectSpread({}, node.position())];
-        }));
-        var positions =
-        /** @type cytoscape.NodePositionMap */
-        Object.fromEntries(
-        /** @type [string, cytoscape.Position | undefined][] */
-        nodes.map(function (node) {
-          return [node.id(), _this.getGeographicPosition(node)];
-        }).filter(function (_ref) {
-          var _ref2 = slicedToArray(_ref, 2),
-              _id = _ref2[0],
-              position = _ref2[1];
+        })); // const positions = /** @type cytoscape.NodePositionMap */ (Object.fromEntries(
+        //   /** @type [string, cytoscape.Position | undefined][] */ (nodes.map(node => {
+        //     return [node.id(), this.getGeographicPosition(node)];
+        //   })).filter(([_id, position]) => {
+        //     return !!position;
+        //   })
+        // ));
+        // this.cy.elements().makeLayout(this.getLayout({
+        //   fit: false,
+        //   animate: this.options.animate,
+        //   animationDuration: this.options.animationDuration ?? DEFAULT_ANIMATION_DURATION,
+        //   animationEasing: 'ease-out-cubic',
+        // }))
+        //     // .one('layoutstop', this.saveLayoutPositionAsLatLngBound)
+        //     .run();
 
-          return !!position;
-        })); // hide nodes without position
-        // const nodesWithoutPosition = nodes.filter(node => !positions[node.id()]);
-        // nodesWithoutPosition.addClass(HIDDEN_CLASS).style('display', 'none');
-
-        this.cy.layout({
-          name: 'preset',
-          positions: positions,
-          fit: false,
-          animate: this.options.animate,
-          animationDuration: (_this$options$animati3 = this.options.animationDuration) !== null && _this$options$animati3 !== void 0 ? _this$options$animati3 : DEFAULT_ANIMATION_DURATION,
-          animationEasing: 'ease-out-cubic'
-        }).run();
+        this.cy.nodes().forEach(function (node) {
+          if (_this3.getNodeLngLat(node)) {
+            node.lock();
+          }
+        });
+        this.updateNodePosition(nodes);
       }
       /**
        * @private
@@ -399,46 +439,41 @@
     }, {
       key: "updateGeographicPositions",
       value: function updateGeographicPositions() {
-        var _this2 = this;
-
         var nodes = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.cy.nodes();
-        var positions =
-        /** @type cytoscape.NodePositionMap */
-        Object.fromEntries(
-        /** @type [string, cytoscape.Position | undefined][] */
-        nodes.map(function (node) {
-          return [node.id(), _this2.getGeographicPosition(node)];
-        }).filter(function (_ref3) {
-          var _ref4 = slicedToArray(_ref3, 2),
-              _id = _ref4[0],
-              position = _ref4[1];
-
-          return !!position;
-        })); // update only positions which have changed, for cytoscape-edgehandles compatibility
-
-        var currentPositions =
-        /** @type cytoscape.NodePositionMap */
-        Object.fromEntries(nodes.map(function (node) {
-          return [node.id(), _objectSpread({}, node.position())];
-        }));
-        var updatedPositions =
-        /** @type cytoscape.NodePositionMap */
-        Object.fromEntries(Object.entries(positions).filter(function (_ref5) {
-          var _ref6 = slicedToArray(_ref5, 2),
-              id = _ref6[0],
-              position = _ref6[1];
-
-          var currentPosition = currentPositions[id];
-          return !_this2.arePositionsEqual(currentPosition, position);
-        })); // hide nodes without position
+        // const positions = /** @type cytoscape.NodePositionMap */ (Object.fromEntries(
+        //   /** @type [string, cytoscape.Position | undefined][] */ (nodes.map(node => {
+        //     return [node.id(), this.getGeographicPosition(node)];
+        //   })).filter(([_id, position]) => {
+        //     return !!position;
+        //   })
+        // ));
+        //
+        // // update only positions which have changed, for cytoscape-edgehandles compatibility
+        // const currentPositions = /** @type cytoscape.NodePositionMap */ (Object.fromEntries(nodes.map(node => {
+        //   return [node.id(), { ...node.position() }];
+        // })));
+        // const updatedPositions = /** @type cytoscape.NodePositionMap */ (Object.fromEntries(
+        //   Object.entries(positions).filter(([id, position]) => {
+        //     const currentPosition = currentPositions[id];
+        //     return !this.arePositionsEqual(currentPosition, position);
+        //   })
+        // ));
+        //
+        // // hide nodes without position
         // const nodesWithoutPosition = nodes.filter(node => !positions[node.id()]);
         // nodesWithoutPosition.addClass(HIDDEN_CLASS).style('display', 'none');
-
-        this.cy.layout({
-          name: 'preset',
-          positions: updatedPositions,
-          fit: false
-        }).run();
+        // this.cy.nodes().forEach((node) => {
+        //   if (this.getGeographicPosition(node)) {
+        //     node.lock();
+        //   }
+        // });
+        this.updateNodePosition(nodes); // if (this.options.runLayoutOnViewport) {
+        //   console.log("Layout on viewport");
+        //   this.cy.layout(this.getLayout({
+        //     fit: false,
+        //     animate: false
+        //   })).run();
+        // }
       }
       /**
        * @private
@@ -447,64 +482,101 @@
     }, {
       key: "disableGeographicPositions",
       value: function disableGeographicPositions() {
-        var _this$options$animati4;
+        var nodes = this.cy.nodes(); // show nodes without position
 
-        var nodes = this.cy.nodes();
-        this.cy.layout({
-          name: 'preset',
-          positions: this.originalPositions,
-          fit: false,
-          animate: this.options.animate,
-          animationDuration: (_this$options$animati4 = this.options.animationDuration) !== null && _this$options$animati4 !== void 0 ? _this$options$animati4 : DEFAULT_ANIMATION_DURATION,
-          animationEasing: 'ease-in-cubic',
-          stop: function stop() {
-            // show nodes without position
-            var nodesWithoutPosition = nodes.filter(function (node) {
-              return node.hasClass(HIDDEN_CLASS);
-            });
-            nodesWithoutPosition.removeClass(HIDDEN_CLASS).style('display', null);
-          }
-        }).run();
+        if (this.options.hideNonPositional) {
+          var nodesWithoutPosition = nodes.filter(function (node) {
+            return node.hasClass(HIDDEN_CLASS);
+          });
+          nodesWithoutPosition.removeClass(HIDDEN_CLASS).style('display', null);
+        }
+
+        nodes.forEach(function (node) {
+          // if (this.originalPositions && this.originalPositions[node.id()]) {
+          //   node.position(this.originalPositions[node.id()]);
+          //   node.unlock();
+          // }
+          node.unlock();
+        });
+        this.cy.fit(); // this.cy.layout(this.getLayout({
+        //   fit: false,
+        //   animate: this.options.animate,
+        //   animationDuration: this.options.animationDuration ?? DEFAULT_ANIMATION_DURATION,
+        //   animationEasing: 'ease-in-cubic',
+        //   stop: () => {
+        //     // show nodes without position
+        //     const nodesWithoutPosition = nodes.filter(node => node.hasClass(HIDDEN_CLASS));
+        //     nodesWithoutPosition.removeClass(HIDDEN_CLASS).style('display', null);
+        //   }
+        // })).run();
+
+        this.cy.one('layoutstop', function (evt) {
+          evt.cy.nodes().unlock();
+        });
         this.originalPositions = undefined;
       }
       /**
        * @private
-       * @param {MouseEvent} event
+       * @param {cytoscape.EventObject} cyEventObject
        */
 
     }, {
       key: "onGraphContainerMouseDown",
-      value: function onGraphContainerMouseDown(event) {
-        var _this3 = this;
+      value: function onGraphContainerMouseDown(cyEventObject) {
+        var _this4 = this;
 
-        if (event.buttons === 1 && !isMultSelKeyDown(event) && !this.cy.renderer().hoverData.down) {
+        var originalEvent = cyEventObject.originalEvent;
+
+        if (originalEvent.buttons === 1 && !isMultSelKeyDown(originalEvent) && !this.cy.renderer().hoverData.down) {
           this.cy.renderer().hoverData.dragging = true; // cytoscape-lasso compatibility
 
-          this.dispatchMapEvent(event);
-          document.addEventListener('mouseup', function () {
-            if (!_this3.panning) {
+          this.saveLayoutPositionAsLatLng(cyEventObject.cy.nodes());
+          this.dispatchMapEvent(originalEvent);
+          this.cy.one('tapdrag', this.onGraphContainerMouseMoveBound); // this.cy.nodes('#London-NewYork1').on('position', (evt) => {
+          //   let data = {
+          //     position: evt.target.position(),
+          //     rendered: evt.target.renderedPosition(),
+          //     relative: evt.target.relativePosition()
+          //   }
+          //
+          //   if (evt.target.scratch('leaflet')) {
+          //     data['geoposition'] = evt.target.scratch('leaflet').currentGeoposition;
+          //   }
+          //
+          //   console.table(data);
+          // });
+
+          cyEventObject.cy.one('tapend', function (cyUpEventObject) {
+            // this.deleteLatLngLayoutPosition(cyUpEventObject.cy.nodes());
+            // this.updateGeographicPositions(cyUpEventObject.cy.nodes());
+            // console.warn("TAPEND");
+            // setTimeout(()=>{
+            //   this.cy.nodes('#London-NewYork1').off('position');
+            // }, 500);
+            if (!_this4.panning) {
               return;
             }
 
-            _this3.panning = false; // prevent unselecting in Cytoscape mouseup
+            _this4.panning = false; // prevent unselecting in Cytoscape mouseup
 
-            _this3.cy.renderer().hoverData.dragged = true;
-          }, {
-            once: true
+            _this4.cy.renderer().hoverData.dragged = true;
           });
         }
       }
       /**
        * @private
-       * @param {MouseEvent} event
+       * @param {cytoscape.EventObject} cyEventObject
        */
 
     }, {
       key: "onGraphContainerMouseMove",
-      value: function onGraphContainerMouseMove(event) {
-        if (event.buttons === 1 && !isMultSelKeyDown(event) && !this.cy.renderer().hoverData.down) {
+      value: function onGraphContainerMouseMove(cyEventObject) {
+        var originalEvent = cyEventObject.originalEvent;
+
+        if (originalEvent.buttons === 1 && !isMultSelKeyDown(originalEvent) && !this.cy.renderer().hoverData.down) {
           this.panning = true;
-          this.dispatchMapEvent(event);
+          cyEventObject.preventDefault();
+          this.dispatchMapEvent(originalEvent);
         }
       }
       /**
@@ -525,6 +597,22 @@
       key: "onMapMove",
       value: function onMapMove() {
         this.updateGeographicPositions();
+      }
+    }, {
+      key: "onMapMoveEnd",
+      value: function onMapMoveEnd() {
+        var _this5 = this;
+
+        // console.log("moveend");
+        setTimeout(function () {
+          _this5.cy.nodes().forEach(function (node) {
+            if (!_this5.getNodeLngLat(node)) {
+              // console.log("unlock");
+              // this.updateNodePosition(node);
+              node.unlock();
+            }
+          });
+        }, this.options.delayOnMove || DEFAULT_MAP_MOVE_DELAY);
       }
       /**
        * @private
@@ -623,11 +711,11 @@
     }, {
       key: "getNodeLngLatBounds",
       value: function getNodeLngLatBounds() {
-        var _this4 = this;
+        var _this6 = this;
 
         var nodes = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.cy.nodes();
         var bounds = nodes.reduce(function (bounds, node) {
-          var lngLat = _this4.getNodeLngLat(node);
+          var lngLat = _this6.getNodeLngLat(node);
 
           if (!lngLat) {
             return bounds;
@@ -646,7 +734,7 @@
     }, {
       key: "getGeographicPosition",
       value: function getGeographicPosition(node) {
-        var lngLat = this.getNodeLngLat(node);
+        var lngLat = this.getNodeLngLat(node) || node.scratch('leaflet') && node.scratch('leaflet').currentGeoposition;
 
         if (!lngLat) {
           return;

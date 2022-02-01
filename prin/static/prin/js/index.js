@@ -37,40 +37,57 @@ function loadMap(data) {
     const colors = {
         'Sll': '#1f77b4',
         'Ateco': '#b41f53',
+        'Exporting': '#fff600',
+        'Emerging': '#66bd54'
     };
 
     const label_attr = {
         'Sll': 'name',
         'Ateco': 'code',
+        'Exporting': 'name',
+        'Emerging': 'name',
     };
+
+    if (window.cy) {
+        console.log("Destroying previous cytoscape instance");
+        window.cy.destroy();
+    }
 
     const cy = cytoscape({
         container: document.getElementById('graph'),
         elements,
         layout: {
-            name: 'cose',
+            name: 'd3-force',
             animate: true,
-            nodeRepulsion: 1000000
+            linkId: function id(d) {
+                return d.id;
+            },
+            linkDistance: 10,
+            manyBodyStrength: -300,
+            randomize: false,
+            infinite: true
         },
         style: [
             {
                 selector: 'node',
                 style: {
-                    'border-color': function (ele) {
-                        const labels = ele.data('labels');
-                        return colors[labels[0]]
+                    'width': 20,
+                    'height': 20,
+                    'border-color': '#ffffff',
+                    'border-width': 1,
+                    // 'background-color': '#1f77b4',
+                    'background-color': function (node) {
+                        return colors[node.data()['labels'][0]];
                     },
-                    'border-width': 2,
-                    'background-color': '#ffffff',
                     // 'background-image': 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg width="1792" height="1792" viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg"><path d="M1216 0q185 0 316.5 93.5t131.5 226.5v896q0 130-125.5 222t-305.5 97l213 202q16 15 8 35t-30 20h-1056q-22 0-30-20t8-35l213-202q-180-5-305.5-97t-125.5-222v-896q0-133 131.5-226.5t316.5-93.5h640zm-320 1344q80 0 136-56t56-136-56-136-136-56-136 56-56 136 56 136 136 56zm576-576v-512h-1152v512h1152z" fill="#fff"/></svg>`),
-                    'background-width': '60%',
-                    'background-height': '60%',
+                    // 'background-width': '60%',
+                    // 'background-height': '60%',
                     'color': '#333333',
-                    'label': function (ele) {
-                        const labels = ele.data('labels');
-                        return ele.data(label_attr[labels[0]]);
+                    'label': function(node) {
+                        let data = node.data();
+                        return data[label_attr[data['labels'][0]]]
                     },
-                    'font-size': '10px',
+                    'font-size': 10,
                     'text-valign': 'bottom',
                     'text-margin-y': 6,
                     'text-background-color': '#ffffff',
@@ -97,7 +114,8 @@ function loadMap(data) {
             {
                 selector: 'edge',
                 style: {
-                    'line-color': '#cccccc'
+                    'line-color': '#cccccc',
+                    'width': 1
                 }
             },
             {
@@ -106,16 +124,13 @@ function loadMap(data) {
                     'line-color': '#999999'
                 }
             },
-            {
-                selector: '.eh-hover',
-                style: {
-                    'background-color': 'red'
-                }
-            },
         ]
     });
-    cy.panzoom();
-    cy.lassoSelectionEnabled(true);
+
+    window.cy = cy;
+
+    // cy.panzoom();
+    // cy.lassoSelectionEnabled(true);
 
     cy.on('mouseover', '*', e => {
         e.target.addClass('hover');
@@ -126,57 +141,55 @@ function loadMap(data) {
         e.cy.container().style.cursor = 'default';
     });
 
-    let cyMap;
-    let removeMap = true;
+    let cyMap = false;
     const toggleMap = () => {
-        removeMap = !removeMap;
-        if (!removeMap) {
+        console.log("TOGGLE");
+        if (!cyMap) {
             cy.container().setAttribute("id", "graph");
 
-            cy.panzoom('destroy');
+            // cy.panzoom('destroy');
 
-            cy.autoungrabify(true);
-            cyMap = cy.L(
-                { // L.MapOptions (leaflet)
-                    minZoom: 0,
-                    maxZoom: 18,
+            cyMap = cy.L({
+                minZoom: 0,
+                maxZoom: 18,
+            }, {
+                getPosition: (node) => {
+                    const lng = node.data('lng');
+                    const lat = node.data('lat');
+                    return typeof lng === "number" && typeof lat === "number"
+                        ? { lat, lng }
+                        : null;
                 },
-                { // MapOptions (cytoscape-leaflet)
-                    getPosition: (node, map) => {
-                        const lng = node.data('lng');
-                        const lat = node.data('lat');
-
-                        let toReturn = null;
-                        if (typeof lng === "number" && typeof lat === "number") {
-                            toReturn = { lat, lng }
-                        } else {
-                            // const renderedPosition = node.renderedPosition();
-                            // const point = new L.Point(renderedPosition.x, renderedPosition.y);
-                            // const latlng = map.containerPointToLatLng(point)
-                            // console.log(latlng);
-                            toReturn = null;
-                        }
-                        console.log(node.data(), toReturn);
-                        return toReturn
-                    },
-                    animate: true,
-                    animationDuration: 1000,
-                });
+                setPosition: (node, lngLat) => {
+                    if(typeof node.data('lon') === "number" && typeof node.data('lat') === "number") {
+                        node.data('lng', lngLat.lng);
+                        node.data('lat', lngLat.lat);
+                    } else {
+                        node.scratch('leaflet', lngLat);
+                    }
+                },
+                animate: true,
+                animationDuration: 500,
+                // hideNonPositional: true,
+                delayOnMove: 50,
+                runLayoutOnViewport: false,
+            });
             window.cyMap = cyMap;
-
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                minZoom: 0,
+                maxZoom: 18,
             }).addTo(cyMap.map);
+            // cyMap.map.setView(new L.LatLng(39.497934628621884, 16.38500133250716), 10);
         } else {
             cyMap.destroy();
             cyMap = undefined;
-            cy.autoungrabify(false);
-            cy.panzoom();
+
+            // cy.panzoom();
         }
     };
-
     document.getElementById('mode').addEventListener('click', toggleMap);
+    // cy.ready(() => toggleMap());
+
     // cy.ready(() => toggleMap());
     //
     // const minLng = cy.nodes().reduce((acc, node) => Math.min(acc, node.data('lng') || acc), Infinity);

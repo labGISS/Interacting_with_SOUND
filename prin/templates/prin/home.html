@@ -7,20 +7,28 @@
           integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
           crossorigin=""/>
 
-{#    <link href="https://unpkg.com/cytoscape-panzoom@2.5.3/cytoscape.js-panzoom.css"#}
-{#          rel="stylesheet">#}
+    {#    <link href="https://unpkg.com/cytoscape-panzoom@2.5.3/cytoscape.js-panzoom.css"#}
+    {#          rel="stylesheet">#}
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
           rel="stylesheet">
 {% endblock css %}
 
 {% block content %}
     <div id="graph"></div>
+    <div id="form">
+        <select id="cluster"
+                data-url="{% url 'api:get_exportings' %}"
+                submit-endpoint="{% url 'api:complete_query' %}"
+        >
+            <option value="">Seleziona un cluster</option>
+        </select>
+    </div>
     <div id="controls">
         <button id="mode">Toggle Map</button>
         <button id="ateco">Atecos</button>
-        <button id="cluster">HOSPITALITY</button>
         <div style="height: 10px"></div>
     </div>
+
 {% endblock content %}
 
 {% block scripts %}
@@ -28,10 +36,10 @@
             integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
             crossorigin=""></script>
     <script src="https://unpkg.com/cytoscape@3.20.0/dist/cytoscape.min.js"></script>
-{#    <script src="https://unpkg.com/cytoscape-panzoom@2.5.3/cytoscape-panzoom.js"></script>#}
+    {#    <script src="https://unpkg.com/cytoscape-panzoom@2.5.3/cytoscape-panzoom.js"></script>#}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.js"></script>
-{#    <script src="https://unpkg.com/cytoscape-lasso@1.1.4/dist/cytoscape-lasso.min.js"></script>#}
-{#    <script src="https://unpkg.com/cytoscape-leaflet@1.0.3/dist/cytoscape-leaflet.js"></script>#}
+        <script src="https://unpkg.com/cytoscape-lasso@1.1.4/dist/cytoscape-lasso.min.js"></script>
+    {#    <script src="https://unpkg.com/cytoscape-leaflet@1.0.3/dist/cytoscape-leaflet.js"></script>#}
     <script src="{% static 'prin/js/cytoscape-leaflet.js' %}"></script>
 
     <script src="https://d3js.org/d3-dispatch.v1.min.js"></script>
@@ -45,21 +53,22 @@
     <script src="https://unpkg.com/webcola/WebCola/cola.min.js"></script>
     <script src="{% static 'prin/js/cytoscape-cola.js' %}"></script>
 
-    <script src="{% static 'prin/js/index.js' %}"></script>
+    <script src="{% static 'prin/js/home.js' %}"></script>
     <script>
         window.addEventListener('DOMContentLoaded', async () => {
+            loadCytoscape();
+            initForm();
 
-            {#loadData("{% url 'api:get_sll_data' %}");#}
-            loadData("{% url 'api:test_api' %}", {sll: "Acri"});
-
-            document.getElementById('ateco').addEventListener('click', (e)=>{
-                {#loadData("{% url 'api:test_api' %}", {sll: "Acri"});#}
-                loadData("{% url 'api:get_sll_data' %}");
+            document.getElementById('mode').addEventListener('click', () => {
+                toggleMap()
+            });
+            document.getElementById('ateco').addEventListener('click', () => {
+                loadGraphData("{% url 'api:get_sll_data' %}");
             });
 
-            document.getElementById('cluster').addEventListener('click', (e)=>{
-                loadData("{% url 'api:cluster_test' %}", {exporting: "HOSPITALITY AND TOURISM"});
-            });
+            {#loadData("{% url 'api:cluster_test' %}", {exporting: "HOSPITALITY AND TOURISM"});#}
+
+            {#loadData("{% url 'api:complete_query' %}", {exporting: "HOSPITALITY AND TOURISM"});#}
         });
     </script>
 {% endblock scripts %}

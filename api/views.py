@@ -1,11 +1,12 @@
 # Create your views here.
-from neomodel import Q, OUTGOING, Traversal
+from neomodel import Q, OUTGOING, Traversal, db
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Exporting, Ateco, Sll, AtecoRel
+from .models import Exporting, Ateco, Sll, AtecoRel, Emerging, Exporting, ClusterContieneRel
 from .utlis import QueryFilterGen, PrinQuery
 
+from time import time
 
 class GetSll(APIView):
     def get(self, request):
@@ -27,10 +28,18 @@ class GetSll(APIView):
         return Response(data=dict(nodes=sll_list, rels=[]), status=status.HTTP_200_OK)
 
 
+class GetExporting(APIView):
+    def get(self, request):
+        res = [exporting.serialize for exporting in Exporting.nodes.all()]
+        print(res)
+
+        return Response(data=res)
+
 class GraphBuild(APIView):
     """
     This class queries the neo4j database based on request's parameters
     """
+
     def get(self, request):
         slls = request.GET.getlist('sll')
 
@@ -93,3 +102,87 @@ class Test(APIView):
                 relationships.append(dict(id=f"{sll.id}-{ateco.id}", source=ateco.id, target=sll.id))
 
         return Response(data=dict(nodes=nodes, rels=relationships), status=status.HTTP_200_OK)
+
+
+class ClusterTest(APIView):
+
+    def get(self, request):
+        exporting_name = request.GET.get('exporting')
+        nodes, relationships = [], []
+
+        # Getting the exporting cluster
+        exporting_node = Exporting.nodes.get(name=exporting_name)
+        nodes.append(exporting_node.serialize)
+
+        # Getting the atecos
+        atecos = exporting_node.atecos
+
+        su = 0
+
+        for ateco in atecos:
+            print("----------------")
+            nodes.append(ateco.serialize)
+            relationships.append(dict(id=f"{exporting_node.id}-{ateco.id}", source=exporting_node.id, target=ateco.id))
+
+            # Getting slls that contains current ateco
+            ateco_slls = ateco.slls.match(cluster=exporting_name, year=2012, units__gt=40)
+            for sll in ateco_slls:
+                nodes.append(sll.serialize)
+                relationships.append(dict(id=f"{ateco.id}-{sll.id}", source=ateco.id, target=sll.id))
+
+        return Response(data=dict(nodes=nodes, rels=relationships), status=status.HTTP_200_OK)
+
+
+class CompleteQuery(APIView):
+
+    def get(self, request):
+        exporting = request.GET.get('exporting')
+
+        query = """match (c:Exporting {name: $exporting})-[contiene:CLUSTER_CONTIENE]-(a:Ateco)-[relaziona:CLUSTER_RELAZIONA]-(s:Sll) 
+        where c.name = relaziona.cluster and relaziona.year = 2012 and relaziona.units > 0
+        with c, contiene, a, relaziona, s
+        match (e:Emerging)-[cont:CLUSTER_CONTIENE]-(a)-[rel2]-(s2)
+        where rel2.cluster = e.name and rel2.year = relaziona.year and rel2.units > 0
+        return c, contiene, a, relaziona, s, cont, e, rel2, s2"""
+
+        classes = {
+            'c': Exporting,
+            'contiene': ClusterContieneRel,
+            'a': Ateco,
+            'relaziona': AtecoRel,
+            's': Sll,
+            'cont': ClusterContieneRel,
+            'e': Emerging,
+            'rel2': AtecoRel,
+            's2': Sll
+        }
+
+        print("Seraching results for ", exporting)
+        result, meta = db.cypher_query(query, {'exporting': exporting})
+        print("Results: ", len(result))
+
+        added_ids = []
+        to_return = []
+
+        start_time = time() * 1000
+        for row in result:
+            zippo = zip(meta, row)
+
+            for m, el in zippo:
+                if el.id in added_ids:
+                    continue
+
+                inflate_start = time() * 1000
+                element = classes[m].inflate(el).serialize
+                # if not element['id'] in added_ids[element['group']]:
+                to_return.append(element)
+                # added_ids[element["group"]].append(element["id"])
+                added_ids.append(el.id)
+
+                inflate_end = time() * 1000
+                # print(f"Inflate time: {inflate_end-inflate_start}")
+
+        end_time = time() * 1000
+
+        print(f"Returning {len(to_return)} elements from {len(result)} rows. Time: {end_time-start_time} ms")
+        return Response(data=to_return, status=status.HTTP_200_OK)
