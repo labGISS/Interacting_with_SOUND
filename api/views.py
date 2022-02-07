@@ -159,7 +159,7 @@ class CompleteQuery(APIView):
 
         print("Seraching results for ", exporting)
         result, meta = db.cypher_query(query, {'exporting': exporting})
-        print("Results: ", len(result))
+        print("Results: ", result)
 
         added_ids = []
         to_return = []

@@ -26,6 +26,7 @@
     <div id="controls">
         <button id="mode">Toggle Map</button>
         <button id="ateco">Atecos</button>
+        <button id="centrality">Centralità</button>
         <div style="height: 10px"></div>
     </div>
 
@@ -64,6 +65,19 @@
             });
             document.getElementById('ateco').addEventListener('click', () => {
                 loadGraphData("{% url 'api:get_sll_data' %}");
+            });
+
+            document.getElementById('centrality').addEventListener('click', () => {
+                const bc = cy.$().bc();
+
+                cy.$().forEach((el) => {
+
+                    if (el.isNode()) {
+                        console.log(`bc of ${el.id()}:` + bc.betweenness(`#${el.id()}`));
+                        el.style('width', (bc.betweenness(`#${el.id()}`)+1)*0.5);
+                        el.style('height', (bc.betweenness(`#${el.id()}`)+1)*0.5);
+                    }
+                })
             });
 
             {#loadData("{% url 'api:cluster_test' %}", {exporting: "HOSPITALITY AND TOURISM"});#}

@@ -123,6 +123,11 @@ function loadCytoscape() {
 
     cy.on('select', 'node', function(evt){
         evt.target.neighborhood().addClass("highlighted");
+        console.log(evt.target.data());
+    });
+
+    cy.on('select', 'edge', function(evt){
+        console.log(evt.target.data());
     });
 
     cy.on('unselect', 'node', function(evt){
@@ -169,7 +174,32 @@ function loadGraphData(endpoint, parameters) {
         type: "get", //send it through get method
         data: parameters,
         success: function(response) {
-            updateGraph(response)
+            const data = response;
+            let elements;
+            if (Array.isArray(data)) {
+                elements = data.map(element => {
+                    return {group: element.group, data: element}
+                });
+            } else {
+                const nodes = data.nodes;
+                const rels = data.rels;
+
+                const cyNodes = nodes.map((node) => {
+                    return {data: node}
+                });
+
+                const cyRels = rels.map((rel)=> {
+                    return {data: rel}
+                });
+
+                elements = {
+                    nodes: cyNodes,
+                    edges: cyRels
+                };
+            }
+
+            window.graphData = elements;
+            updateGraph(window.graphData);
         },
         error: function(xhr) {
             //Do Something to handle error
@@ -181,34 +211,9 @@ function updateGraph(data) {
     // remove current graph
     window.cy.elements().remove();
 
-    let elements;
-    if (Array.isArray(data)) {
-        elements = data.map(element => {
-           return {group: element.group, data: element}
-        });
-    } else {
-        const nodes = data.nodes;
-        const rels = data.rels;
+    console.log(data);
 
-        const cyNodes = nodes.map((node) => {
-            return {data: node}
-        });
-
-        const cyRels = rels.map((rel)=> {
-            return {data: rel}
-        });
-
-        elements = {
-            nodes: cyNodes,
-            edges: cyRels
-        };
-    }
-
-
-
-    console.log(elements);
-
-    window.cy.add( elements );
+    window.cy.add( data );
     window.cy.layout(CY_LAYOUT).run();
     window.cy.center();
 }
