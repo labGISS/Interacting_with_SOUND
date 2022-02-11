@@ -12,6 +12,23 @@ const NODE_LABEL_ATTRIBUTE = {
     'Emerging': 'name',
 };
 
+const ATTRIBUTES_TEXT = {
+    "id": "ID",
+    "labels": "Tipo",
+    "code": "Codice",
+    "name": "Nome",
+    "ncom": "# comuni",
+    "population": "Popoloazione totale",
+    "area": "Area",
+    "lat": "Latitudine",
+    "lng": "Longitudine",
+    "year": "Anno",
+    "cluster": "Cluster",
+    "units": "# Aziende",
+    "employee_avg": "Impiegati (media)",
+    "description": "Descrizione"
+}
+
 const CY_STYLE = [
     {
         selector: 'node',
@@ -91,12 +108,13 @@ const CY_LAYOUT = {
     linkId: function id(d) {
         return d.id;
     },
-    linkDistance: 20,
+    linkDistance: 200,
     manyBodyStrength: -300,
     randomize: false,
     infinite: true,
     fit: false,
 };
+
 
 function loadCytoscape() {
     if (window.cy) {
@@ -123,19 +141,22 @@ function loadCytoscape() {
 
     cy.on('select', 'node', function(evt){
         evt.target.neighborhood().addClass("highlighted");
-        console.log(evt.target.data());
+        displayElementInfobox(evt.target.data())
     });
 
     cy.on('select', 'edge', function(evt){
-        console.log(evt.target.data());
+        evt.target.addClass("highlighted");
+        displayElementInfobox(evt.target.data())
     });
 
-    cy.on('unselect', 'node', function(evt){
+    cy.on('unselect', 'element', function(evt){
+        evt.target.removeClass("highlighted");
         evt.target.neighborhood().removeClass("highlighted");
+        clearElementInfobox()
     });
 
 
-
+    // cy.resize()
     window.cy = cy;
 }
 
@@ -168,6 +189,9 @@ function initForm() {
 }
 
 function loadGraphData(endpoint, parameters) {
+    // show loading spinner overlay
+    $('.loading-overlay').css('display', 'flex');
+
     $.ajax({
         dataType: 'json',
         url: endpoint,
@@ -200,6 +224,9 @@ function loadGraphData(endpoint, parameters) {
 
             window.graphData = elements;
             updateGraph(window.graphData);
+
+            // hide loading spinner
+            $(".loading-overlay").hide();
         },
         error: function(xhr) {
             //Do Something to handle error
@@ -208,6 +235,8 @@ function loadGraphData(endpoint, parameters) {
 }
 
 function updateGraph(data) {
+    // remove the map (eventually) showed
+    disableMap()
     // remove current graph
     window.cy.elements().remove();
 
@@ -221,45 +250,76 @@ function updateGraph(data) {
 function toggleMap() {
     console.log("TOGGLE");
     if (!window.cyMap) {
-        cy.container().setAttribute("id", "graph");
-
-        // cy.panzoom('destroy');
-
-        const cyMap = cy.L({
-            minZoom: 0,
-            maxZoom: 18,
-        }, {
-            getPosition: (node) => {
-                const lng = node.data('lng');
-                const lat = node.data('lat');
-                return typeof lng === "number" && typeof lat === "number"
-                    ? { lat, lng }
-                    : null;
-            },
-            setPosition: (node, lngLat) => {
-                if(typeof node.data('lon') === "number" && typeof node.data('lat') === "number") {
-                    node.data('lng', lngLat.lng);
-                    node.data('lat', lngLat.lat);
-                } else {
-                    node.scratch('leaflet', lngLat);
-                }
-            },
-            animate: true,
-            animationDuration: 500,
-            // hideNonPositional: true,
-            delayOnMove: 50,
-            runLayoutOnViewport: false,
-        });
-
-        window.cyMap = cyMap;
-        L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            minZoom: 0,
-            maxZoom: 18,
-        }).addTo(window.cyMap.map);
+        enableMap()
     } else {
+        disableMap()
+    }
+}
+
+function disableMap() {
+    if (window.cyMap) {
         window.cyMap.destroy();
         window.cyMap = undefined;
-
-        // cy.panzoom();
     }
+    // cy.panzoom();
+}
+
+function enableMap() {
+    cy.container().setAttribute("id", "graph");
+
+    // cy.panzoom('destroy');
+
+    const cyMap = cy.L({
+        minZoom: 0,
+        maxZoom: 18,
+    }, {
+        getPosition: (node) => {
+            const lng = node.data('lng');
+            const lat = node.data('lat');
+            return typeof lng === "number" && typeof lat === "number"
+                ? { lat, lng }
+                : null;
+        },
+        setPosition: (node, lngLat) => {
+            if(typeof node.data('lon') === "number" && typeof node.data('lat') === "number") {
+                node.data('lng', lngLat.lng);
+                node.data('lat', lngLat.lat);
+            } else {
+                node.scratch('leaflet', lngLat);
+            }
+        },
+        animate: true,
+        animationDuration: 500,
+        // hideNonPositional: true,
+        delayOnMove: 50,
+        runLayoutOnViewport: false,
+    });
+
+    window.cyMap = cyMap;
+    L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        minZoom: 0,
+        maxZoom: 18,
+    }).addTo(window.cyMap.map);
+}
+
+function displayElementInfobox(data) {
+    const infobox = $('#info-box');
+    const dl = $('<dl class="row"></dl>');
+
+    const attributes_list = Object.keys(ATTRIBUTES_TEXT);
+
+    infobox.append(dl)
+    for (const [key, value] of Object.entries(data)) {
+        // <dt className="col-sm-3">Description lists</dt>
+        // <dd className="col-sm-9">A description list is perfect for defining terms.</dd>
+        if(attributes_list.includes(key)) {
+            dl.append($("<dt></dt>").addClass("col-sm-3").text(ATTRIBUTES_TEXT[key]));
+            dl.append($("<dd></dd>").addClass("col-sm-9").text(value));
+        }
+    }
+}
+
+
+function clearElementInfobox() {
+    $("#info-box").empty();
 }

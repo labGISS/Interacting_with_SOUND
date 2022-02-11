@@ -2,9 +2,33 @@ body {
     margin: 0;
 }
 
-#graph {
-    width: 100vw;
-    height: 100vh;
+#graph, .loading-overlay {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.loading-overlay {
+    z-index: 10;
+    display: none;
+}
+
+.cytoscape-container {
+    padding: 0;
+    margin: 0;
+    border: 1px solid gray;
+    position: relative;
+    height: calc(100vh - 56px)
+}
+
+.controls-column {
+    border-width: 2px;
 }
 
 #graph > *:not(.leaflet-container) {
@@ -12,18 +36,32 @@ body {
     z-index: 500 !important;
 }
 
+.controls-column * {
+    padding: 10px;
+}
 #controls {
+    /*position: absolute;*/
+    /*top: 100px;*/
+    /*left: 52px;*/
+    /*z-index: 998;*/
+}
+
+.loading-overlay {
+    background: #e9e9e9;
     position: absolute;
-    top: 100px;
-    left: 52px;
-    z-index: 998;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.5;
+    /*height: 100%;*/
 }
 
 #form {
-    position: absolute;
-    top: 60px;
-    left: 52px;
-    z-index: 999;
+    /*position: absolute;*/
+    /*top: 60px;*/
+    /*left: 52px;*/
+    /*z-index: 999;*/
 }
 
 .hide {
