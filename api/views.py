@@ -1,5 +1,5 @@
 # Create your views here.
-from neomodel import Q, OUTGOING, Traversal, db
+from neomodel import Q, OUTGOING, Traversal, db, StructuredNode
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -7,6 +7,20 @@ from .models import Exporting, Ateco, Sll, AtecoRel, Emerging, Exporting, Cluste
 from .utlis import QueryFilterGen, PrinQuery
 
 from time import time
+
+
+class GetCusters(APIView):
+    def get(self, request):
+        cluster_type = request.GET.get("type")
+        clusters_obj: dict = {
+            "emerging": Emerging,
+            "exporting": Exporting
+        }
+        cluster = clusters_obj[cluster_type]
+
+        res = [element.serialize for element in cluster.nodes.all()]
+        return Response(data=res, status=status.HTTP_200_OK)
+
 
 class GetSll(APIView):
     def get(self, request):
@@ -159,7 +173,7 @@ class CompleteQuery(APIView):
 
         print("Seraching results for ", exporting)
         result, meta = db.cypher_query(query, {'exporting': exporting})
-        print("Results: ", result)
+        # print("Results: ", result)
 
         added_ids = []
         to_return = []
