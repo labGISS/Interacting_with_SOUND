@@ -1,6 +1,6 @@
 // Questo script popola il database prin secondo lo schema definito in DESCRIZIONE.txt
-// Assicurarsi che neo4j possa conntettersi a internet, oppure che i file Ateco2007.csv, emerging.csv, exporting.csv, emerging_clusters.csv, exporting_clusters.csv e sll_centroid.csv 
-// siano presenti nella cartella neo4j/import. 
+// Assicurarsi che neo4j possa conntettersi a internet, oppure che i file Ateco2007.csv, emerging.csv, exporting.csv, emerging_clusters.csv, exporting_clusters.csv e sll_centroid.csv
+// siano presenti nella cartella neo4j/import.
 // Tali file possono essere generati mediante gli script prensenti nel progetto prin_tools
 
 // 0. Creazione di indici e contstraint
