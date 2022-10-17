@@ -2,8 +2,8 @@
 {% load static %}
 
 {% block css %}
-    <link href="{% static 'prin/css/index.css' %}" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    <link href="{% static 'prin/css/index.css' %}" rel="stylesheet" type="text/css">
+    <link type="text/css" rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
           integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
           crossorigin=""/>
 
@@ -48,29 +48,29 @@
 {% endblock content %}
 
 {% block scripts %}
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+    <script type="application/javascript" src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
             integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
             crossorigin=""></script>
-    <script src="https://unpkg.com/cytoscape@3.20.0/dist/cytoscape.min.js"></script>
+    <script type="application/javascript" src="https://unpkg.com/cytoscape@3.20.0/dist/cytoscape.min.js"></script>
     {#    <script src="https://unpkg.com/cytoscape-panzoom@2.5.3/cytoscape-panzoom.js"></script>#}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.js"></script>
-    <script src="https://unpkg.com/cytoscape-lasso@1.1.4/dist/cytoscape-lasso.min.js"></script>
+    <script type="application/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.js"></script>
+    <script type="application/javascript" src="https://unpkg.com/cytoscape-lasso@1.1.4/dist/cytoscape-lasso.min.js"></script>
     {#    <script src="https://unpkg.com/cytoscape-leaflet@1.0.3/dist/cytoscape-leaflet.js"></script>#}
-    <script src="{% static 'prin/js/cytoscape-leaflet.js' %}"></script>
+    <script type="application/javascript" src="{% static 'prin/js/cytoscape-leaflet.js' %}"></script>
 
-    <script src="https://d3js.org/d3-dispatch.v1.min.js"></script>
-    <script src="https://d3js.org/d3-quadtree.v1.min.js"></script>
-    <script src="https://d3js.org/d3-timer.v1.min.js"></script>
-    <script src="https://d3js.org/d3-force.v2.min.js"></script>
-    <script>window['d3-force'] = d3</script>
+    <script type="application/javascript" src="https://d3js.org/d3-dispatch.v1.min.js"></script>
+    <script type="application/javascript" src="https://d3js.org/d3-quadtree.v1.min.js"></script>
+    <script type="application/javascript" src="https://d3js.org/d3-timer.v1.min.js"></script>
+    <script type="application/javascript" src="https://d3js.org/d3-force.v2.min.js"></script>
+    <script type="application/javascript">window['d3-force'] = d3</script>
     <script type="application/javascript" src="{% static 'prin/js/cytoscape-d3-force.js' %}"></script>
 
 
-    <script src="https://unpkg.com/webcola/WebCola/cola.min.js"></script>
-    <script src="{% static 'prin/js/cytoscape-cola.js' %}"></script>
+    <script type="application/javascript" src="https://unpkg.com/webcola/WebCola/cola.min.js"></script>
+    <script type="application/javascript" src="{% static 'prin/js/cytoscape-cola.js' %}"></script>
 
-    <script src="{% static 'prin/js/home.js' %}"></script>
-    <script>
+    <script type="application/javascript" src="{% static 'prin/js/home.js' %}"></script>
+    <script type="application/javascript">
         window.addEventListener('DOMContentLoaded', async () => {
             loadCytoscape();
             initForm();

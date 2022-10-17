@@ -166,7 +166,7 @@ function initForm() {
         if ($(this).val() !== '') {
             const endpoint = clusterSelect.attr('submit-endpoint');
             console.log(endpoint, $(this).val());
-            loadGraphData(endpoint, {exporting: $(this).val()})
+            loadGraphData(endpoint, {e: $(this).val()})
         }
     });
 

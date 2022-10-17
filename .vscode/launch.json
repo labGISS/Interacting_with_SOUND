@@ -1,0 +1,23 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Django",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}\\manage.py",
+            "args": [
+                "runserver",
+                "127.0.0.1:7000"
+            ],
+            "django": true,
+            "justMyCode": true,
+            "env": {
+                "NEO4J_BOLT_URL": "neo4j+s://neo4j:ny5GX39xYKik3YjwUaj8xS5_-m7pVHnvhBjBToUhNf8@d25bf017.databases.neo4j.io:7687"
+            }
+        }
+    ]
+}

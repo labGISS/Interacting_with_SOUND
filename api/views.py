@@ -1,4 +1,6 @@
 # Create your views here.
+import re
+from django.http import QueryDict, HttpRequest
 from neomodel import Q, OUTGOING, Traversal, db, StructuredNode
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -27,6 +29,11 @@ class GetSll(APIView):
         sll_names = request.GET.getlist('name')
         sll_ids = request.GET.getlist('id')
 
+        sll_region: str = request.GET.get('region')
+
+        if not sll_region.upper() == "CALABRIA":
+            return Response(data=dict(nodes=[], rels=[]), status=status.HTTP_200_OK)
+            
         qs_generator = QueryFilterGen()
         prin_query = PrinQuery()
 
@@ -149,41 +156,46 @@ class ClusterTest(APIView):
 
 class CompleteQuery(APIView):
 
-    def get(self, request):
-        exporting = request.GET.get('exporting')
+    def get(self, request: HttpRequest):
+        exporting = request.GET.get('e')
+        year = int(request.GET.get('y', 2018))
 
-        query = """match (c:Exporting {name: $exporting})-[contiene:CLUSTER_CONTIENE]-(a:Ateco)-[relaziona:CLUSTER_RELAZIONA]-(s:Sll) 
-        where c.name = relaziona.cluster and relaziona.year = 2012 and relaziona.units > 0
-        with c, contiene, a, relaziona, s
-        match (e:Emerging)-[cont:CLUSTER_CONTIENE]-(a)-[rel2]-(s2)
-        where rel2.cluster = e.name and rel2.year = relaziona.year and rel2.units > 0
-        return c, contiene, a, relaziona, s, cont, e, rel2, s2"""
+        print(exporting, year)
+        
+        query = """
+            MATCH (ex:Exporting {name: $exporting})-[ex_contiene:CLUSTER_CONTIENE]-(a:Ateco)-[ex_relaziona:CLUSTER_RELAZIONA]-(s:Sll) 
+            WHERE ex.name = ex_relaziona.cluster and ex_relaziona.year = $year and (ex_relaziona.units > 0 or ex_relaziona.employees_avg > 0)
+            WITH ex, ex_contiene, a, ex_relaziona, s
+            MATCH (em:Emerging)-[em_contiene:CLUSTER_CONTIENE]-(a)-[em_relaziona:CLUSTER_RELAZIONA]-(s2:Sll)
+            WHERE em_relaziona.cluster = em.name and em_relaziona.year = ex_relaziona.year and (em_relaziona.units > 0 or em_relaziona.employees_avg > 0)
+            RETURN ex, ex_contiene, a, ex_relaziona, s, em, em_contiene, em_relaziona, s2
+        """
 
         classes = {
-            'c': Exporting,
-            'contiene': ClusterContieneRel,
+            'ex': Exporting,
+            'ex_contiene': ClusterContieneRel,
             'a': Ateco,
-            'relaziona': AtecoRel,
+            'ex_relaziona': AtecoRel,
             's': Sll,
-            'cont': ClusterContieneRel,
-            'e': Emerging,
-            'rel2': AtecoRel,
+            'em': Emerging,
+            'em_contiene': ClusterContieneRel,
+            'em_relaziona': AtecoRel,
             's2': Sll
         }
 
-        print("Seraching results for ", exporting)
-        result, meta = db.cypher_query(query, {'exporting': exporting})
-        # print("Results: ", result)
+        print("Seraching results for ", exporting, year)
+        result, meta = db.cypher_query(query, {'exporting': exporting, "year": year})
+        print("Meta: ", meta)
 
-        added_ids = []
+        inflated_ids = []  # memorize already inflated elements
         to_return = []
 
         start_time = time() * 1000
         for row in result:
             zippo = zip(meta, row)
-
             for m, el in zippo:
-                if el.id in added_ids:
+                print(m, el)
+                if el.id in inflated_ids:
                     continue
 
                 inflate_start = time() * 1000
@@ -191,10 +203,10 @@ class CompleteQuery(APIView):
                 # if not element['id'] in added_ids[element['group']]:
                 to_return.append(element)
                 # added_ids[element["group"]].append(element["id"])
-                added_ids.append(el.id)
+                inflated_ids.append(el.id)
 
                 inflate_end = time() * 1000
-                # print(f"Inflate time: {inflate_end-inflate_start}")
+                print(f"Inflate time: {inflate_end-inflate_start}")
 
         end_time = time() * 1000
 

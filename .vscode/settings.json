@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/4ad6f591-0086-48ac-90c7-3c5cebbd3281/resourceGroups/prinsound-testing-rg/providers/Microsoft.Web/sites/prinsound-testing",
+    "appService.deploySubpath": "."
+}

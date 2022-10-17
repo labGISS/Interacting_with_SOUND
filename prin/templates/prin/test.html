@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block css %}
+    <link href="{% static 'prin/css/test.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+          integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+          crossorigin=""/>
+
+    <link href="https://unpkg.com/cytoscape-panzoom@2.5.3/cytoscape.js-panzoom.css"
+          rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+          rel="stylesheet">
+{% endblock css %}
+
+{% block content %}
+    <div id="map"></div>
+{% endblock content %}
+
+{% block scripts %}
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+            integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+            crossorigin=""></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="{% static 'prin/js/test.js' %}"></script>
+{% endblock scripts %}
