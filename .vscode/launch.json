@@ -16,7 +16,7 @@
             "django": true,
             "justMyCode": true,
             "env": {
-                "NEO4J_BOLT_URL": "neo4j+s://neo4j:ny5GX39xYKik3YjwUaj8xS5_-m7pVHnvhBjBToUhNf8@d25bf017.databases.neo4j.io:7687"
+                "NEO4J_BOLT_URL": "neo4j+s://neo4j:OI-5IfTnLwRFVs-c0dvl7c3UbfPRjltX69a8JUC8f_E@bac2bb52.databases.neo4j.io:7687"
             }
         }
     ]
