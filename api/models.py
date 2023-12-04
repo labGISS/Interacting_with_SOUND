@@ -16,9 +16,9 @@ class AtecoRel(StructuredRel):
     @property
     def serialize(self):
         return {
-            'id': self.id,
-            'source': self.start_node().id,
-            'target': self.end_node().id,
+            'id': self.element_id,
+            'source': self.start_node().element_id,
+            'target': self.end_node().element_id,
             'cluster': self.cluster,
             'year': self.year,
             'units': self.units,
@@ -31,9 +31,9 @@ class ClusterContieneRel(StructuredRel):
     @property
     def serialize(self):
         return {
-            'id': self.id,
-            'source': self.start_node().id,
-            'target': self.end_node().id,
+            'id': self.element_id,
+            'source': self.start_node().element_id,
+            'target': self.end_node().element_id,
             'group': 'edges'
         }
 
@@ -50,7 +50,7 @@ class Sll(StructuredNode):
     @property
     def serialize(self):
         return {
-            'id': self.id,
+            'id': self.element_id,
             'labels': self.labels(),
             'code': self.code,
             'name': self.name,
@@ -72,7 +72,7 @@ class Ateco(StructuredNode):
     @property
     def serialize(self):
         return {
-            'id': self.id,
+            'id': self.element_id,
             'labels': self.labels(),
             'code': self.code,
             'description': self.description,
@@ -87,7 +87,7 @@ class Ateco(StructuredNode):
 #     @property
 #     def serialize(self):
 #         return {
-#             'id': self.id,
+#             'id': self.element_id,
 #             'labels': self.labels(),
 #             'name': self.name,
 #         }
@@ -100,7 +100,7 @@ class Exporting(StructuredNode):
     @property
     def serialize(self):
         return {
-            'id': self.id,
+            'id': self.element_id,
             'labels': self.labels(),
             'name': self.name,
             'group': 'nodes'
@@ -114,7 +114,7 @@ class Emerging(StructuredNode):
     @property
     def serialize(self):
         return {
-            'id': self.id,
+            'id': self.element_id,
             'labels': self.labels(),
             'name': self.name,
             'group': 'nodes'
