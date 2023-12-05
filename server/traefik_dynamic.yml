@@ -1,0 +1,22 @@
+# Traefik Dynamic Configuration
+http:
+  routers:
+    # Overrides the default 'api' router 
+    api:
+      # The rule matches http://example.com/api or http://example.com/dashboard
+      # but does not match http://example.com/hello
+      rule: Host(`labgis.di.unisa.it`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))
+      entrypoints:
+        - web
+        - websecure
+        # - traefik  # uncomment to use the :8080 port
+      service: api@internal # link the 'api' router with the 'api@internal' service
+      tls:
+        certResolver: letsEncryptResolver
+      middlewares:
+        - auth # use the 'auth' middleware (see below)
+  middlewares:
+    auth:
+      basicAuth:
+        users:
+          - "admin:$apr1$pgY.2nMQ$YhSBrK7WcStFSgkXQTTY40" # default admin:labgis

@@ -1,0 +1,61 @@
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: "websecure"
+          scheme: "https"
+  websecure:
+    address: ":443"
+certificatesResolvers:
+  letsEncryptResolver:
+    # Enable ACME (Let's Encrypt): automatic SSL.
+    acme:
+      # Email address used for registration.
+      #
+      # Required
+      #
+      email: "example@email.com"
+
+      # File or key used for certificates storage.
+      #
+      # Required
+      #
+      storage: "acme.json"
+
+      # CA server to use.
+      # Uncomment the line to use Let's Encrypt's staging server,
+      # leave commented to go to prod.
+      #
+      # Optional
+      # Default: "https://acme-v02.api.letsencrypt.org/directory"
+      #
+      # caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
+
+      # The certificates' duration in hours.
+      # It defaults to 2160 (90 days) to follow Let's Encrypt certificates' duration.
+      #
+      # Optional
+      # Default: 2160
+      #
+      # certificatesDuration: 2160
+
+      # Use a HTTP-01 ACME challenge.
+      httpChallenge:
+        # EntryPoint to use for the HTTP-01 challenges.
+        entryPoint: web
+log:
+  level: ERROR
+  filePath: "/var/log/traefik/traefik.log"
+api:
+  # insecure: true
+  dashboard: true
+providers:
+  #file:
+    # Some traefik options needs to be configured as dynamic configuration. 
+    # We provide them with a file provider 
+    # filename: "/etc/traefik/traefik_dynamic.yml" # traefik dynamic configuration
+  docker:
+    # Enable the docker provider
+    watch: true # Automatic discover of new containers
