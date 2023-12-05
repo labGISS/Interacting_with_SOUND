@@ -52,7 +52,7 @@ class GetSll(APIView):
 class GetExporting(APIView):
     def get(self, request):
         res = [exporting.serialize for exporting in Exporting.nodes.all()]
-        print(res)
+        # print(res)
 
         return Response(data=res)
 
@@ -114,7 +114,7 @@ class Test(APIView):
         for sll in sll_nodes:
             node_ateco = sll.atecos.match(year=2012)
 
-            print(len(node_ateco))
+            # print(len(node_ateco))
             for ateco in node_ateco:
                 ateco_serial = ateco.serialize
                 if not ateco_serial in nodes:
@@ -194,7 +194,7 @@ class CompleteQuery(APIView):
         for row in result:
             zippo = zip(meta, row)
             for m, el in zippo:
-                print(m, el)
+                # print(m, el)
                 if el.id in inflated_ids:
                     continue
 
