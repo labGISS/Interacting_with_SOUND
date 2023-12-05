@@ -120,7 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'it-it'
 
 TIME_ZONE = 'UTC'
 
@@ -134,7 +134,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = os.environ.get("DJANGO_STATIC_URL", "/static/")
-STATIC_ROOT = os.environ.get("DJANGO_STATIC_ROOT", "./static/")
+STATIC_ROOT = os.environ.get("DJANGO_STATIC_ROOT", "./staticfiles/")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -143,7 +143,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # Neomodel configuration
-NEOMODEL_NEO4J_BOLT_URL = os.environ.get('NEO4J_BOLT_URL', 'bolt://neo4j:neo4j123@localhost:7687')
+NEO4J_PASSWORD = env('DATABASE_PASSWORD', default='neo4j')
+NEO4J_HOST = env('DATABASE_HOST', default='localhost')
+NEO4J_PORT = env('DATABASE_PORT', default='7687')
+
+NEOMODEL_NEO4J_BOLT_URL = os.environ.get('NEO4J_BOLT_URL', f'bolt://neo4j:{NEO4J_PASSWORD}@{NEO4J_HOST}:{NEO4J_PORT}')
 
 # Rest-Framework settings
 # REST_FRAMEWORK = {
@@ -159,6 +163,6 @@ STORAGES = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+        "BACKEND": 'whitenoise.storage.CompressedStaticFilesStorage',
     },
 }

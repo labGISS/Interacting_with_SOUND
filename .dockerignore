@@ -1,0 +1,7 @@
+.idea
+node_modules
+server
+venv
+db.sqlite3
+sqldata
+.env
