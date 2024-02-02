@@ -129,12 +129,12 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = os.environ.get("DJANGO_STATIC_URL", "/static/")
+STATIC_URL = os.environ.get("DJANGO_STATIC_URL", "/prin/static/")
 STATIC_ROOT = os.environ.get("DJANGO_STATIC_ROOT", "./staticfiles/")
+WHITENOISE_STATIC_PREFIX="/static/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -163,6 +163,6 @@ STORAGES = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+        "BACKEND": 'whitenoise.storage.CompressedStaticFilesStorage',
     },
 }

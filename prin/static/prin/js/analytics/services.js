@@ -1,4 +1,4 @@
-var baseUrl = "http://127.0.0.1:8000"
+var baseUrl = "https://labgis.di.unisa.it/prin"
 
 function request(endpoint, parameters = undefined, callback = undefined) {
     var chain = baseUrl + endpoint;
