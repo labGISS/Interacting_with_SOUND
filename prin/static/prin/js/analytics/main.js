@@ -165,7 +165,7 @@ function initPage() {
         var counterCluster = 1;
         var counter = 0;
         for (var cluster of data) {
-            var iconName = "https://labgis.di.unisa.it/prin/static/prin/imgs/Exporting-Icons/" + cluster.name.replace(/,/gm, "").replace(/ /gm, "-") + ".png";
+            var iconName = "/static/prin/imgs/Exporting-Icons/" + cluster.name.replace(/,/gm, "").replace(/ /gm, "-") + ".png";
             carouselElement.append(`<div class="carousel-item-div">
                                         <a style="cursor: pointer" class="disabled anchorCluster" onclick="loadGraph('${cluster.name}')">
                                             <img src="${iconName}" style="width: 44px; margin-bottom: 4px;" title="${cluster.name}">
