@@ -1,11 +1,8 @@
-var baseUrl = "https://labgis.di.unisa.it/prin"
-
 function request(endpoint, parameters = undefined, callback = undefined) {
-    var chain = baseUrl + endpoint;
     $.ajax({
         type: 'GET',
         dataType: "json",
-        url: chain,
+        url: endpoint,
         success: callback,
         data: parameters
     })
