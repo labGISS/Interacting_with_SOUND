@@ -13,7 +13,7 @@
         <nav class="navbar navbar-expand-lg navbar-light">
             <div class="container-fluid">
                 <a class="navbar-brand" onclick="location.reload()" style="width: 200px; cursor: pointer;">
-                    <img src="{% static 'prin/imgs/SOUND_logo-01.png' %}" style="width: 100%"></a>
+                    <img src="{% static 'prin/imgs/SOUND_logo-01.png' %}" style="width: 100%" alt=""></a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -23,26 +23,26 @@
                         <li class="nav-item">
                             <button type="button" class="btn btn-outline-primary mx-3 my-2" onclick="disableMap()" style="width: 90px">
                                 Grafo <br>
-                                <img src="{% static 'prin/imgs/Graph.png' %}" style="width: 40px">
+                                <img src="{% static 'prin/imgs/Graph.png' %}" style="width: 40px" alt="">
                             </button>
                         </li>
                         <li class="nav-item">
                             <button type="button" class="btn btn-outline-secondary mx-3 my-2" onclick="enableMap()"
                                     style="width: 90px">
                                 Mappa <br>
-                                <img src="{% static 'prin/imgs/World.webp' %}" style="width: 40px">
+                                <img src="{% static 'prin/imgs/World.webp' %}" style="width: 40px" alt="">
                             </button>
                         </li>
                         <li class="nav-item">
                             <button type="button" class="btn btn-outline-success mx-3 my-2" style="width: 90px">
                                 Analisi <br>
-                                <img src="{% static 'prin/imgs/Analytics.webp' %}" style="width: 40px">
+                                <img src="{% static 'prin/imgs/Analytics.webp' %}" style="width: 40px" alt="">
                             </button>
                         </li>
                         <li class="nav-item">
                             <button type="button" class="btn btn-outline-danger mx-3 my-2" style="width: 90px">
                                 Trend <br>
-                                <img src="{% static 'prin/imgs/Trend.webp' %}" style="width: 40px">
+                                <img src="{% static 'prin/imgs/Trend.webp' %}" style="width: 40px" alt="">
                             </button>
                         </li>
                     </ul>
@@ -64,13 +64,13 @@
                         <div class="legend border border-secondary rounded-3 pb-1 mx-4 my-2 position-absolute bottom-0 start-0 fw-normal"
                              style="width: auto; z-index: 600;">
                             <b>Legenda</b> <br>
-                            <img src="{% static 'prin/imgs/square-green.svg' %}" class="mt-1 me-1 mb-1"><a style="cursor: pointer" class="link-dark" onclick="evidenziaNodi('Emerging')">Emerging</a>
+                            <img src="{% static 'prin/imgs/square-green.svg' %}" class="mt-1 me-1 mb-1" alt=""><a style="cursor: pointer" class="link-dark" onclick="evidenziaNodi('Emerging')">Emerging</a>
                             <br>
-                            <img src="{% static 'prin/imgs/square-red.svg' %}" class="me-1 mb-1"><a style="cursor: pointer" onclick="evidenziaNodi('Ateco')"class="link-dark">Ateco</a>
+                            <img src="{% static 'prin/imgs/square-red.svg' %}" class="me-1 mb-1" alt=""><a style="cursor: pointer" onclick="evidenziaNodi('Ateco')" class="link-dark">Ateco</a>
                             <br>
-                            <img src="{% static 'prin/imgs/square-lightblue.svg' %}" class="me-1 mb-1"><a style="cursor: pointer" onclick="evidenziaNodi('Sll')"class="link-dark">SLL</a>
+                            <img src="{% static 'prin/imgs/square-lightblue.svg' %}" class="me-1 mb-1" alt=""><a style="cursor: pointer" onclick="evidenziaNodi('Sll')" class="link-dark">SLL</a>
                             <br>
-                            <img src="{% static 'prin/imgs/square-yellow.svg' %}" class="me-1 mb-1"><a style="cursor: pointer" onclick="evidenziaNodi('Exporting')" class="link-dark">Exporting</a>
+                            <img src="{% static 'prin/imgs/square-yellow.svg' %}" class="me-1 mb-1" alt=""><a style="cursor: pointer" onclick="evidenziaNodi('Exporting')" class="link-dark">Exporting</a>
                             <br>
                         </div>
                     </div>
@@ -91,7 +91,7 @@
                         <div class="d-flex align-items-center" style="width: 23%; margin: auto;">
                             <div class="dropdown">
                                 <button id="buttonCluster" onclick="myFunction()" class="dropbtn btn btn-secondary" disabled>
-                                    <img src="{% static 'prin/imgs/search.png' %}" style="width: 25px;"> Cluster
+                                    <img src="{% static 'prin/imgs/search.png' %}" style="width: 25px;" alt=""> Cluster
                                 </button>
                                 <div id="myDropdown" class="dropdown-content fs-6" style="overflow: scroll; height: 200px;">
                                     <input type="text" placeholder="Cerca.." id="myInput" onkeyup="filterFunction()">
@@ -130,10 +130,10 @@
                         <div class="row">
                             <div class="d-flex justify-content-end d-flex align-items-center">
                                 <button id="dati-download" type="button" class="btn btn-secondary btn-sm my-1 mx-1" onclick="downloadDati()" disabled>
-                                    <img src="{% static 'prin/imgs/downloadDati.png' %}" style="width: 16px;"> Dati
+                                    <img src="{% static 'prin/imgs/downloadDati.png' %}" style="width: 16px;" alt=""> Dati
                                 </button>
                                 <button id="mappa-download" type="button" class="btn btn-secondary btn-sm my-1 mx-1" onclick="downloadMappa()" disabled>
-                                    <img src="{% static 'prin/imgs/downloadMappa.png' %}" style="width: 16px;"> Mappa
+                                    <img src="{% static 'prin/imgs/downloadMappa.png' %}" style="width: 16px;" alt=""> Mappa
                                 </button>
                                 <a href="{% url 'info' %}">
                                     <button type="button" class="btn btn-info btn-sm my-1 mx-1">Info</button>
