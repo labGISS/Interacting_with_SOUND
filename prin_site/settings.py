@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'prin.apps.PrinConfig',
     'api.apps.ApiConfig',
+    'testings.apps.TestingsConfig',
 ]
 
 MIDDLEWARE = [

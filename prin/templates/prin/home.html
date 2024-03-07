@@ -2,45 +2,34 @@
 {% load static %}
 
 {% block css %}
-    <link href="{% static 'prin/css/index.css' %}" rel="stylesheet" type="text/css">
-    <link type="text/css" rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
-          integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
-          crossorigin=""/>
-
-    {#    <link href="https://unpkg.com/cytoscape-panzoom@2.5.3/cytoscape.js-panzoom.css"#}
-    {#          rel="stylesheet">#}
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-          rel="stylesheet">
+    <link href="{% static 'prin/css/style.css' %}" rel="stylesheet" type="text/css">
 {% endblock css %}
 
 {% block content %}
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-8 cytoscape-container">
-                <div class="loading-overlay">
-                    <div class="spinner-border text-primary spinner" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                </div>
-                <div id="graph"></div>
+    <div class="container my-5">
+        <div class=" row d-flex flex-row bd-highlight mb-3 d-flex justify-content-around d-flex align-items-center">
+            <div class="p-2 bd-highlight col-6"><img src="{% static 'prin/imgs/SOUND_logo-01.png' %}" style="width: 60%"></div>
+            <div class="col-2"><a href="https://www.unisa.it/"><img src="{% static 'prin/imgs/logo-unisa-png.png' %}" style="width: 100%"></a></div>
+            <div class="col-2"><a href="https://www.unirc.it/"><img src="{% static 'prin/imgs/logo-uni-mediterranea.webp' %}" style="width: 100%"></a></div>
+            <div class="col-2"><a href="https://www.unipa.it/"><img src="{% static 'prin/imgs/logo-uni-palermo.webp' %}" style="width: 100%"></a></div>
+        </div>
+    </div>
+    <div class="container px-5 text-center">
+        <div class="row align-items-center">
+            <div class="col-4">
+                <p style="font-size: 20px"> Questo progetto vede la collaborazione delle Universit&agrave; di Salerno, Reggio Calabria e Palermo.
+                    Lo scopo &egrave quello di analizzare quali aziende sono maggiormente sviluppate all'interno del territorio
+                    interessato. </p>
             </div>
-            <div class="col-4 controls-column" style="overflow-y:scroll;">
-                <div id="form">
-                    <select class="form-select" id="cluster"
-                            data-url="{% url 'api:get_exportings' %}"
-                            submit-endpoint="{% url 'api:complete_query' %}"
-                    >
-                        <option value="">Seleziona un cluster (Exporting)</option>
-                    </select>
-                </div>
-                <div id="controls">
-                    <button class="btn btn-primary" id="mode">Toggle Map</button>
-                    <button class="btn btn-primary" id="ateco">SLL</button>
-                    <button class="btn btn-primary" id="centrality">Centralità</button>
-                    <div style="height: 10px"></div>
-                </div>
-                <div id="info-box">
-
+            <div class="col-8">
+                <div class="container border border-secondary d-flex justify-content-evenly container-home img-hover-zoom"
+                     style="height: 400px;" >
+                    <img src="{% static 'prin/imgs/Sfondo.PNG' %}" class="imgSfondo">
+                    <div class="container px-5 d-flex justify-content-evenly d-flex align-items-center container_button">
+                        <a href="{% url 'analytics' %}">
+                            <button type="button" class="btn btn-dark my-5 btn-lg">Esplora</button>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -48,56 +37,27 @@
 {% endblock content %}
 
 {% block scripts %}
-    <script type="application/javascript" src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
-            integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
-            crossorigin=""></script>
-    <script type="application/javascript" src="https://unpkg.com/cytoscape@3.20.0/dist/cytoscape.min.js"></script>
-    {#    <script src="https://unpkg.com/cytoscape-panzoom@2.5.3/cytoscape-panzoom.js"></script>#}
-    <script type="application/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.js"></script>
-    <script type="application/javascript" src="https://unpkg.com/cytoscape-lasso@1.1.4/dist/cytoscape-lasso.min.js"></script>
-    {#    <script src="https://unpkg.com/cytoscape-leaflet@1.0.3/dist/cytoscape-leaflet.js"></script>#}
-    <script type="application/javascript" src="{% static 'prin/js/cytoscape-leaflet.js' %}"></script>
-
-    <script type="application/javascript" src="https://d3js.org/d3-dispatch.v1.min.js"></script>
-    <script type="application/javascript" src="https://d3js.org/d3-quadtree.v1.min.js"></script>
-    <script type="application/javascript" src="https://d3js.org/d3-timer.v1.min.js"></script>
-    <script type="application/javascript" src="https://d3js.org/d3-force.v2.min.js"></script>
-    <script type="application/javascript">window['d3-force'] = d3</script>
-    <script type="application/javascript" src="{% static 'prin/js/cytoscape-d3-force.js' %}"></script>
-
-
-    <script type="application/javascript" src="https://unpkg.com/webcola/WebCola/cola.min.js"></script>
-    <script type="application/javascript" src="{% static 'prin/js/cytoscape-cola.js' %}"></script>
-
-    <script type="application/javascript" src="{% static 'prin/js/home.js' %}"></script>
-    <script type="application/javascript">
-        window.addEventListener('DOMContentLoaded', async () => {
-            loadCytoscape();
-            initForm();
-
-            document.getElementById('mode').addEventListener('click', () => {
-                toggleMap()
-            });
-            document.getElementById('ateco').addEventListener('click', () => {
-                loadGraphData("{% url 'api:get_sll_data' %}");
-            });
-
-            document.getElementById('centrality').addEventListener('click', () => {
-                const bc = cy.$().bc();
-
-                cy.$().forEach((el) => {
-
-                    if (el.isNode()) {
-                        console.log(`bc of ${el.id()}:` + bc.betweenness(`#${el.id()}`));
-                        el.style('width', (bc.betweenness(`#${el.id()}`)+1)*0.5);
-                        el.style('height', (bc.betweenness(`#${el.id()}`)+1)*0.5);
-                    }
-                })
-            });
-
-            {#loadData("{% url 'api:cluster_test' %}", {exporting: "HOSPITALITY AND TOURISM"});#}
-
-            {#loadData("{% url 'api:complete_query' %}", {exporting: "HOSPITALITY AND TOURISM"});#}
-        });
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+{#    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"#}
+{#            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"#}
+{#            crossorigin="anonymous"></script>#}
+    <!-- Jquery AJAX -->
+    
+    <script type="text/javascript" src="//code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+{#    <script type="text/javascript" src="https://unpkg.com/cytoscape@3.21.0/dist/cytoscape.min.js"></script>#}
+{#    <script src="https://d3js.org/d3-dispatch.v1.min.js"></script>#}
+{#    <script src="https://d3js.org/d3-quadtree.v1.min.js"></script>#}
+{#    <script src="https://d3js.org/d3-timer.v1.min.js"></script>#}
+{#    <script src="https://d3js.org/d3-force.v2.min.js"></script>#}
+{#    <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js" integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ==" crossorigin=""></script>#}
+{#    <script type="text/javascript" src="{% static 'vendor/cytoscape-leaflet.js' %}"></script>#}
+{#    <script>#}
+{#        window['d3-force'] = d3#}
+{#    </script>#}
+{#    <script src="{% static 'vendor/cytoscape-d3-force.js' %}"></script>#}
+    <script src="{% static 'prin/js/analytics/main.js' %}"></script>
+    <script src="{% static 'prin/js/analytics/services.js' %}"></script>
+    <script>
+        initPage();
     </script>
 {% endblock scripts %}
