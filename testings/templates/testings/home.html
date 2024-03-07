@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block css %}
+    <link href="{% static 'prin/css/index.css' %}" rel="stylesheet" type="text/css">
+    <link type="text/css" rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+          integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+          crossorigin=""/>
+
+    {#    <link href="https://unpkg.com/cytoscape-panzoom@2.5.3/cytoscape.js-panzoom.css"#}
+    {#          rel="stylesheet">#}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+          rel="stylesheet">
+{% endblock css %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-8 cytoscape-container">
+                <div class="loading-overlay">
+                    <div class="spinner-border text-primary spinner" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <div id="graph"></div>
+            </div>
+            <div class="col-4 controls-column" style="overflow-y:scroll;">
+                <div id="form">
+                    <select class="form-select" id="cluster"
+                            data-url="{% url 'api:get_exportings' %}"
+                            submit-endpoint="{% url 'api:complete_query' %}"
+                    >
+                        <option value="">Seleziona un cluster (Exporting)</option>
+                    </select>
+                </div>
+                <div id="controls">
+                    <button class="btn btn-primary" id="mode">Toggle Map</button>
+                    <button class="btn btn-primary" id="ateco">SLL</button>
+                    <button class="btn btn-primary" id="centrality">Centralità</button>
+                    <div style="height: 10px"></div>
+                </div>
+                <div id="info-box">
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block scripts %}
+    <script type="application/javascript" src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+            integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+            crossorigin=""></script>
+    <script type="application/javascript" src="https://unpkg.com/cytoscape@3.20.0/dist/cytoscape.min.js"></script>
+    {#    <script src="https://unpkg.com/cytoscape-panzoom@2.5.3/cytoscape-panzoom.js"></script>#}
+    <script type="application/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.10/lodash.js"></script>
+    <script type="application/javascript" src="https://unpkg.com/cytoscape-lasso@1.1.4/dist/cytoscape-lasso.min.js"></script>
+    {#    <script src="https://unpkg.com/cytoscape-leaflet@1.0.3/dist/cytoscape-leaflet.js"></script>#}
+    <script type="application/javascript" src="{% static 'prin/js/cytoscape-leaflet.js' %}"></script>
+
+    <script type="application/javascript" src="https://d3js.org/d3-dispatch.v1.min.js"></script>
+    <script type="application/javascript" src="https://d3js.org/d3-quadtree.v1.min.js"></script>
+    <script type="application/javascript" src="https://d3js.org/d3-timer.v1.min.js"></script>
+    <script type="application/javascript" src="https://d3js.org/d3-force.v2.min.js"></script>
+    <script type="application/javascript">window['d3-force'] = d3</script>
+    <script type="application/javascript" src="{% static 'prin/js/cytoscape-d3-force.js' %}"></script>
+
+
+    <script type="application/javascript" src="https://unpkg.com/webcola/WebCola/cola.min.js"></script>
+    <script type="application/javascript" src="{% static 'prin/js/cytoscape-cola.js' %}"></script>
+
+    <script type="application/javascript" src="{% static 'testings/js/home.js' %}"></script>
+    <script type="application/javascript">
+        window.addEventListener('DOMContentLoaded', async () => {
+            loadCytoscape();
+            initForm();
+
+            document.getElementById('mode').addEventListener('click', () => {
+                toggleMap()
+            });
+            document.getElementById('ateco').addEventListener('click', () => {
+                loadGraphData("{% url 'api:get_sll_data' %}");
+            });
+
+            document.getElementById('centrality').addEventListener('click', () => {
+                const bc = cy.$().bc();
+
+                cy.$().forEach((el) => {
+
+                    if (el.isNode()) {
+                        console.log(`bc of ${el.id()}:` + bc.betweenness(`#${el.id()}`));
+                        el.style('width', (bc.betweenness(`#${el.id()}`)+1)*0.5);
+                        el.style('height', (bc.betweenness(`#${el.id()}`)+1)*0.5);
+                    }
+                })
+            });
+
+            {#loadData("{% url 'api:cluster_test' %}", {exporting: "HOSPITALITY AND TOURISM"});#}
+
+            {#loadData("{% url 'api:complete_query' %}", {exporting: "HOSPITALITY AND TOURISM"});#}
+        });
+    </script>
+{% endblock scripts %}
