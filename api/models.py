@@ -1,11 +1,9 @@
-from abc import ABC
-
-from django.db import models
 from neomodel import StructuredNode, StructuredRel, StringProperty, IntegerProperty, FloatProperty, Relationship, \
     RelationshipTo, RelationshipFrom
-# Create your models here.
 from neomodel.contrib.spatial_properties import PointProperty
 
+
+# Create your models here.
 
 class AtecoRel(StructuredRel):
     cluster = StringProperty()
@@ -47,6 +45,7 @@ class Sll(StructuredNode):
     loc = PointProperty(crs='wgs-84')
 
     atecos = RelationshipFrom('Ateco', 'CLUSTER_RELAZIONA', model=AtecoRel)
+
     @property
     def serialize(self):
         return {
@@ -119,4 +118,3 @@ class Emerging(StructuredNode):
             'name': self.name,
             'group': 'nodes'
         }
-

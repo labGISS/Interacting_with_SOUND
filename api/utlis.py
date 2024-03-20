@@ -25,7 +25,7 @@ class QueryFilterGen(object):
     def filter_sll(self, namelist=None, idlist=None):
         """
         Returns an OR of filtering Q objects suitable for retrieve multiple Slls from database. Filtering can
-        be on name attribute or id attribute. Despite of the name, the parameter can be also a single element instead
+        be on name attribute or id attribute. Despite the name, the parameter can be also a single element instead
         of a list
         :param namelist: item or itemlist of Sll names to retrieve from database
         :param idlist: item or itemlist of Sll ids to retrieve from database
