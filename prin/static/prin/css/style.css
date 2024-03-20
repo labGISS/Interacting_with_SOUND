@@ -6,6 +6,7 @@ main {
     overflow: hidden;
 }
 
+/*home.html*/
 .imgSfondo {
     overflow: hidden;
     position: absolute;
@@ -35,6 +36,7 @@ main {
     z-index: 10;
 }
 
+/* analytics.html */
 .carousel-item-div {
     display: inline-block;
     padding: 0 10px;
@@ -104,7 +106,14 @@ a{
     text-decoration: none!important;
 }
 
-#map {
+.cytoscape-screen {
+    padding: 0;
+    margin: 0;
+    position: relative;
+    height: 65vh;
+}
+
+#graph, .loading-overlay, .graph-overlay {
     width: 100%;
     height: 100%;
     position: absolute;
@@ -114,6 +123,39 @@ a{
     justify-content: center;
     align-items: center;
 }
+
+.loading-overlay {
+    background-color: rgba(255, 255, 255, 0.5);
+    z-index: 10;
+    display: none;
+}
+
+.loading-overlay.active {
+    z-index: 1001;
+    display: flex;
+}
+
+#graph > *:not(.leaflet-container, .legend, .reset) {
+    /* override default cytoscape styles */
+    z-index: 500 !important;
+}
+
+.anchorCluster {
+    cursor: pointer;
+    display: block;
+}
+
+/*#graph {*/
+/*    width: 100%;*/
+/*    height: 100%;*/
+/*    position: absolute;*/
+/*    top: 0;*/
+/*    left: 0;*/
+/*    display: flex;*/
+/*    justify-content: center;*/
+/*    align-items: center;*/
+/*}*/
+
 
 dd {
     text-align: end;
@@ -134,8 +176,7 @@ a.disabled {
     z-index: 500 !important;
 }
 
-
-/* Slider Vincenzo */
+/* Slider */
 
 #slider {
     margin-top: 20px;

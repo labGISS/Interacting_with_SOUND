@@ -1,10 +1,15 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block head_title %}
+    Analytics - PRIN
+{% endblock head_title %}
+
 {% block css %}
-    <link href="{% static 'prin/css/style.css' %}" rel="stylesheet" type="text/css">
-    <link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+{#    <link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">#}
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==" crossorigin="" />
+    
+    <link href="{% static 'prin/css/style.css' %}" rel="stylesheet" type="text/css">
 {% endblock css %}
 
 {% block content %}
@@ -43,6 +48,7 @@
                             <button type="button" class="btn btn-outline-danger mx-3 my-2" style="width: 90px">
                                 Trend <br>
                                 <img src="{% static 'prin/imgs/Trend.webp' %}" style="width: 40px" alt="">
+
                             </button>
                         </li>
                     </ul>
@@ -55,62 +61,108 @@
             <div class="row">
 
                 <!-- Contenitore con la mappa, legenda e tasto reset  -->
-                <div class="col-md-8 my-3">
-
-                    <div id="map" class="row border border-3 position-relative" style="height: 512px; margin-left: 0.5px">
-                        <button type="button" class="reset btn btn-success position-absolute top-0 end-0 btn-sm"
-                                style="width: auto; margin: 5px 20px; z-index: 600;" onclick="location.reload()">Reset
-                        </button>
-                        <div class="legend border border-secondary rounded-3 pb-1 mx-4 my-2 position-absolute bottom-0 start-0 fw-normal"
-                             style="width: auto; z-index: 600;">
-                            <b>Legenda</b> <br>
-                            <img src="{% static 'prin/imgs/square-green.svg' %}" class="mt-1 me-1 mb-1" alt=""><a style="cursor: pointer" class="link-dark" onclick="evidenziaNodi('Emerging')">Emerging</a>
-                            <br>
-                            <img src="{% static 'prin/imgs/square-red.svg' %}" class="me-1 mb-1" alt=""><a style="cursor: pointer" onclick="evidenziaNodi('Ateco')" class="link-dark">Ateco</a>
-                            <br>
-                            <img src="{% static 'prin/imgs/square-lightblue.svg' %}" class="me-1 mb-1" alt=""><a style="cursor: pointer" onclick="evidenziaNodi('Sll')" class="link-dark">SLL</a>
-                            <br>
-                            <img src="{% static 'prin/imgs/square-yellow.svg' %}" class="me-1 mb-1" alt=""><a style="cursor: pointer" onclick="evidenziaNodi('Exporting')" class="link-dark">Exporting</a>
-                            <br>
-                        </div>
-                    </div>
-                    <div class="row mt-4">
-                        <div class="d-flex align-items-center mx-4" style="justify-content: center; width: 5%">
-                            <h6> CLUSTER </h6>
-                        </div>
-                        <div id="carouselExampleDark" class="carousel carousel-dark slide d-flex align-items-center"
-                             data-bs-ride="carousel" data-bs-interval="false" style="width: 65%">
-                            <div class="carousel-indicators" id="carouselButton" style="margin-bottom: -20px;"></div>
-                            <div class="carousel-inner" id="carouselCluster"></div>
-                            <button class="carousel-control-next hidden" type="button" data-bs-target="#carouselExampleDark"
-                                    data-bs-slide="next" style="position: relative">
-                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                <span class="visually-hidden">Next</span>
-                            </button>
-                        </div>
-                        <div class="d-flex align-items-center" style="width: 23%; margin: auto;">
-                            <div class="dropdown">
-                                <button id="buttonCluster" onclick="myFunction()" class="dropbtn btn btn-secondary" disabled>
-                                    <img src="{% static 'prin/imgs/search.png' %}" style="width: 25px;" alt=""> Cluster
-                                </button>
-                                <div id="myDropdown" class="dropdown-content fs-6" style="overflow: scroll; height: 200px;">
-                                    <input type="text" placeholder="Cerca.." id="myInput" onkeyup="filterFunction()">
-                                </div>
+                <div class="col-md-8 my-3 row">
+                    <div class="cytoscape-screen">
+                        <div class="loading-overlay">
+                            <div class="spinner-border text-primary spinner" role="status">
+                                <span class="visually-hidden">Loading...</span>
                             </div>
                         </div>
 
-                        <!-- Range -->
-                        <div class="mx-2 mt-5 text-center mb-5" style="position: sticky;">
-                            <h5 class="mb-2">Seleziona l'anno di cui vuoi visualizzare i dati</h5>
-                            <div id="slider"></div>
+                        <div class="graph-overlay border border-3 position-relative">
+                            <button type="button" class="reset btn btn-success position-absolute top-0 end-0 btn-sm"
+                                    style="width: auto; margin: 5px 20px; z-index: 600;" onclick="onResetButtonClick()">Reset
+                            </button>
+                            <div class="legend border border-secondary rounded-3 pb-1 mx-4 my-2 position-absolute bottom-0 start-0 fw-normal"
+                                 style="width: auto; z-index: 600;">
+                                <b>Legenda</b>
+                                <br>
+                                <img src="{% static 'prin/imgs/square-green.svg' %}" class="mt-1 me-1 mb-1" alt=""><a style="cursor: pointer" class="link-dark" onclick="evidenziaNodi('Emerging')">Emerging</a>
+                                <br>
+                                <img src="{% static 'prin/imgs/square-red.svg' %}" class="me-1 mb-1" alt=""><a style="cursor: pointer" onclick="evidenziaNodi('Ateco')" class="link-dark">Ateco</a>
+                                <br>
+                                <img src="{% static 'prin/imgs/square-lightblue.svg' %}" class="me-1 mb-1" alt=""><a style="cursor: pointer" onclick="evidenziaNodi('Sll')" class="link-dark">SLL</a>
+                                <br>
+                                <img src="{% static 'prin/imgs/square-yellow.svg' %}" class="me-1 mb-1" alt=""><a style="cursor: pointer" onclick="evidenziaNodi('Exporting')" class="link-dark">Exporting</a>
+                                <br>
+                            </div>
                         </div>
+
+                        <div id="graph"></div>
+                    </div>
+                    {% if exporting_list %}
+
+                        <div class="d-flex flex-row justify-content-between mb-3">
+                            <div class="d-flex align-items-center">
+                                <h6>CLUSTER</h6>
+                            </div>
+
+                            <div id="carouselExampleDark" class="carousel carousel-dark d-flex align-items-center flex-grow-1"
+                                 data-bs-ride="carousel" data-bs-interval="false">
+                                <div class="carousel-indicators" id="carouselButton" style="margin-bottom: -20px;">
+                                    {% for sublist in exporting_sublist %}
+                                        <button type="button" class="{% if forloop.first %} active {% endif %}" data-bs-target="#carouselExampleDark" data-bs-slide-to="{{ forloop.counter0 }}" class="active" aria-current="true" aria-label="Slide {{ forloop.counter }}"></button>
+                                    {% endfor %}
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleDark"
+                                        data-bs-slide="prev" style="position: relative">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Prev</span>
+                                </button>
+                                <div class="carousel-inner" id="carouselCluster">
+                                    {% for sublist in exporting_sublist %}
+                                        <div class="carousel-item border-2 {% if forloop.first %} active {% endif %}">
+                                            <div class="d-flex justify-content-between">
+                                                {% for cluster in sublist %}
+                                                    <div class="carousel-item-div">
+                                                        <a class="disabled anchorCluster" onclick="onClusterClick('{{ cluster.name }}')"
+                                                           data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="{{ cluster.name }}">
+                                                            {% with nameslug=cluster.name|slugify|upper %}
+                                                                {% with imgsrc='prin/imgs/Exporting-Icons/'|add:nameslug|add:'.png' %}
+                                                                    <img src="{% static imgsrc %}" style="width: 44px; margin-bottom: 4px;">
+                                                                {% endwith %}
+                                                            {% endwith %}
+                                                        </a>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleDark"
+                                        data-bs-slide="next" style="position: relative">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            </div>
+
+                            <div class="d-flex align-items-center">
+                                <div class="dropdown">
+                                    <button id="buttonCluster" onclick="myFunction()" class="dropbtn btn btn-secondary" disabled>
+                                        <img src="{% static 'prin/imgs/search.png' %}" style="width: 25px;" alt=""> Cluster
+                                    </button>
+                                    <div id="myDropdown" class="dropdown-content fs-6" style="overflow: scroll; height: 200px;">
+                                        <input type="text" placeholder="Cerca.." id="myInput" onkeyup="filterFunction()">
+                                        {% for cluster in exporting_list %}
+                                            <a class="clusterAnchor" onclick="onClusterClick('{{ cluster.name }}')" style="cursor: pointer">{{ cluster.name }}</a>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Range -->
+                    <div class="mx-2 mt-5 text-center mb-5" style="position: sticky;">
+                        <h5 class="mb-2">Seleziona l'anno di cui vuoi visualizzare i dati</h5>
+                        <div id="slider"></div>
                     </div>
                 </div>
                 <div class="col-md-4 my-3">
                     <h5> Regione </h5>
-                    <select id="select-Regione" class="form-select" aria-label="Default select example" onchange="changeRegione(this.value)">
+                    <select id="select-Regione" class="form-select" aria-label="Default select example" onchange="onRegioneDropdown(this.value)">
                         {{ regione }}
-                        <option value="" selected> Seleziona una Regione</option>
+                        <option value="" selected>Seleziona una Regione</option>
                         <option value="Calabria">Calabria
                         </option>
                         <option value="Campania">Campania
@@ -120,7 +172,7 @@
                     <br>
                     <h5> Area Metropolitana/SLL </h5>
                     <select class="form-select" aria-label="Default select example" id="select-SLL" disabled
-                            onchange="selectSLL(this.value)">
+                            onchange="onSllDropdown(this.value)">
                     </select>
                     <hr>
                     <div>
@@ -149,7 +201,7 @@
 
 {% block scripts %}
     <!-- Jquery AJAX -->
-    <script type="text/javascript" src="//code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+{#    <script type="text/javascript" src="//code.jquery.com/ui/1.10.3/jquery-ui.js"></script>#}
     <script type="text/javascript" src="https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js" integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ==" crossorigin=""></script>
 
@@ -169,4 +221,12 @@
     <script>
         initPage();
     </script>
+
+    {% if error %}
+    	<script>
+            bsAlert("Si è verificato un errore", "danger")
+        </script>
+    {% else %}
+
+    {% endif %}
 {% endblock scripts %}

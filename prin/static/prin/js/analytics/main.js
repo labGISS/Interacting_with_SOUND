@@ -104,34 +104,42 @@ const CY_STYLE = [
     },
 ];
 
-function myFunction() {
-    document.getElementById("myDropdown").classList.toggle("show");
+const CY_DEFAULT_LAYOUT = {
+    name: 'd3-force',
+    animate: true,
+    maxSimulationTime: 3000,
+    fixedAfterDragging: false,
+    linkId: function id(d) {
+        return d.id;
+    },
+    linkDistance: 40,
+    manyBodyStrength: -300,
+    // collideRadius: function (p) {
+    //     console.log("Collide: ", p);
+    //     return 3;
+    // },
+    randomize: false,
+    infinite: true,
 }
 
-function filterFunction() {
-    var input, filter, ul, li, a, i;
-    input = document.getElementById("myInput");
-    filter = input.value.toUpperCase();
-    div = document.getElementById("myDropdown");
-    a = div.getElementsByTagName("a");
-    for (i = 0; i < a.length; i++) {
-        txtValue = a[i].textContent || a[i].innerText;
-        if (txtValue.toUpperCase().indexOf(filter) > -1) {
-            a[i].style.display = "";
-        } else {
-            a[i].style.display = "none";
-        }
-    }
+// update application state
+function updateURL(param, value) {
+    pushSearchParametersString(updateLocationSearchParams(param, value));
 }
 
-function initPage() {
-    const cy = cytoscape({
-        container: document.getElementById('map'),
+// Cytoscape
+function initCy() {
+    const cy = window.cy = cytoscape({
+        container: document.getElementById('graph'),
         style: CY_STYLE,
         zoom: 1.0,
         minZoom: 0.7,
-        maxZoom: 2.5
+        maxZoom: 2.5,
+        layout: CY_DEFAULT_LAYOUT,
     });
+
+    // cy.panzoom();
+
     cy.on('mouseover', '*', e => {
         e.target.addClass('hover');
         e.cy.container().style.cursor = 'pointer';
@@ -156,45 +164,202 @@ function initPage() {
         evt.target.neighborhood().removeClass("highlighted");
         clearElementInfobox()
     });
-    window.cy = cy;
-
-    getCluster(function (data) {
-        var carouselElement = $('<div class="carousel-item border-end border-secondary active border-2"></div>');
-        var carouselButton = $('<button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>');
-        var counterButton = 1;
-        var counterCluster = 1;
-        var counter = 0;
-        for (var cluster of data) {
-            var iconName = "/static/prin/imgs/Exporting-Icons/" + cluster.name.replace(/,/gm, "").replace(/ /gm, "-") + ".png";
-            carouselElement.append(`<div class="carousel-item-div">
-                                        <a style="cursor: pointer" class="disabled anchorCluster" onclick="loadGraph('${cluster.name}')">
-                                            <img src="${iconName}" style="width: 44px; margin-bottom: 4px;" title="${cluster.name}">
-                                        </a>
-                                    </div>`)
-            $("#myDropdown").append(`<a class="clusterAnchor" onclick="loadGraph('${cluster.name}')" style="cursor: pointer">${cluster.name}</a>`);
-            counter++;
-            counterCluster++;
-            if (counter > 7 || counterCluster > data.length) {
-                $("#carouselCluster").append(carouselElement);
-                carouselElement = $('<div class="carousel-item border-end border-secondary border-2"></div>');
-                $("#carouselButton").append(carouselButton);
-                carouselButton = $(`<button type="button" data-bs-target="#carouselExampleDark" data-bs-slide-to="${counterButton}" aria-label="Slide ${counterButton + 1}"></button>`);
-                counter = 0;
-                counterButton++;
-            }
-        }
-        $(".carousel-control-next").removeClass("hidden");
-    });
 }
 
-function loadGraph(clusterName) {
-    window.cy.elements().unselect();
-    $("#select-SLL").val('');
-    $("#select-SLL").prop('disabled', true);
-    window.cy.elements().remove();
-    getGraph(clusterName, 2018, function (data) {
-        uploadData(data);
-    })
+function loadGraph(data) {
+    var elements;
+    if (Array.isArray(data)) {
+        elements = data.map(element => {
+            return {group: element.group, data: element}
+        });
+    } else {
+        const nodes = data.nodes;
+        const rels = data.rels;
+
+        const cyNodes = nodes.map((node) => {
+            return {data: node}
+        });
+
+        const cyRels = rels.map((rel) => {
+            return {data: rel}
+        });
+
+        elements = {
+            nodes: cyNodes,
+            edges: cyRels
+        };
+    }
+    window.cy.add(elements);
+    window.cy.layout(CY_DEFAULT_LAYOUT).once('layoutstop', () => loading(false)).run();
+}
+
+function toggleMap() {
+    if (!window.cyMap) {
+        enableMap()
+    } else {
+        disableMap()
+    }
+}
+
+function enableMap() {
+    if (window.cyMap) {
+        return;
+    }
+    window.cy.container().setAttribute("id", "graph");
+    // window.cy.panzoom('destroy');
+
+    const cyMap = window.cyMap = window.cy.L({
+        minZoom: 0,
+        maxZoom: 18,
+    }, {
+        getPosition: (node) => {
+            const lng = node.data('lng');
+            const lat = node.data('lat');
+            return typeof lng === "number" && typeof lat === "number"
+                ? {lat, lng}
+                : null;
+        },
+        // setPosition: (node, lngLat) => {
+        //     if (typeof node.data('lon') === "number" && typeof node.data('lat') === "number") {
+        //         node.data('lng', lngLat.lng);
+        //         node.data('lat', lngLat.lat);
+        //     } else {
+        //         node.scratch('leaflet', lngLat);
+        //     }
+        // },
+        animate: true,
+        animationDuration: 500,
+        layout: CY_DEFAULT_LAYOUT
+    });
+
+    L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        minZoom: 0,
+        maxZoom: 18,
+    }).addTo(cyMap.map);
+}
+
+function disableMap() {
+    if (window.cyMap) {
+        window.cyMap.destroy();
+        window.cyMap = undefined;
+
+        // window.cy.panzoom();
+    }
+}
+
+function myFunction() {
+    document.getElementById("myDropdown").classList.toggle("show");
+}
+
+function filterFunction() {
+    let input, filter, ul, li, a, i;
+    input = document.getElementById("myInput");
+    filter = input.value.toUpperCase();
+    div = document.getElementById("myDropdown");
+    a = div.getElementsByTagName("a");
+    for (i = 0; i < a.length; i++) {
+        txtValue = a[i].textContent || a[i].innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            a[i].style.display = "";
+        } else {
+            a[i].style.display = "none";
+        }
+    }
+}
+
+// initialization
+/**
+ * Disable all grap controls
+ */
+function resetControls() {
+    $("#select-SLL").empty().prop('disabled', true);
+    $("#buttonCluster").prop('disabled', true);
+    $(".anchorCluster").addClass('disabled');
+    $("#dati-download").prop('disabled', true);
+    $("#mappa-download").prop('disabled', true);
+}
+
+/**
+ * Reset all requested elements: clear the state, reset the controls, clear the graph
+ */
+function resetAll(state = true, controls = true, graph = true) {
+    if (state) {
+        window.currentState = {
+            reg: undefined,
+            sll: undefined,
+            cluster: undefined,
+            year: 2018
+        }
+    }
+
+    controls && resetControls();
+    graph && window.cy.elements().remove();
+
+}
+
+function loading(isLoading) {
+    if (isLoading) {
+        document.querySelector('.cytoscape-screen .loading-overlay').classList.add('active');
+    } else {
+        document.querySelector('.cytoscape-screen .loading-overlay').classList.remove('active');
+    }
+}
+function initPage() {
+    // initialize global state
+    resetAll(true, false, false);
+
+    initCy();
+
+    window.history.onreplacestate = function (state) {
+        const params = new window.URLSearchParams(window.location.search);
+        loadQueryParameters(Object.fromEntries(params));
+    }
+
+    const params = new window.URLSearchParams(window.location.search);
+    loadQueryParameters(Object.fromEntries(params));
+
+    bsEnableTooltips();
+}
+
+function loadQueryParameters(parameters) {
+    const reg = parameters.reg;
+    const sll = parameters.sll;
+    const year = parameters.year | 2018;
+    const cluster = parameters.cluster;
+
+    console.log(reg, sll, year, cluster);
+
+    if (!reg) {
+        // if no region selected, reset all
+        resetAll();
+        return;
+    }
+
+    console.log("window.cy.elements().empty()", window.cy.elements().empty(), "!cluster", !cluster);
+    if (year !== window.currentState.year || reg !== window.currentState.reg) {
+        changeRegione(reg, year, window.cy.elements().empty() && !cluster); // load slls on graph only if neither cluster nor sll is selected
+    }
+
+    if (cluster && (year !== window.currentState.year || cluster !== window.currentState.cluster)) {
+        changeCluster(cluster, year)
+    }
+
+
+    selectSLL(sll);
+}
+
+function changeCluster(clusterName, year) {
+    // window.cy.elements().unselect();
+    // // $("#select-SLL").val('');
+    // // $("#select-SLL").prop('disabled', true);
+    // window.cy.elements().remove();
+    resetAll(false, false, true);
+    loading(true);
+    getGraph(clusterName, year, function (data) {
+        loadGraph(data);
+        loading(false);
+    });
+    window.currentState.cluster = clusterName;
 }
 
 function displayElementInfobox(data) {
@@ -221,6 +386,7 @@ function clearElementInfobox() {
     $("#info-box").empty();
 }
 
+
 function dropdown() {
     var x = document.getElementById("drop-menu");
     var setting = x.style.display;
@@ -231,50 +397,65 @@ function dropdown() {
     }
 }
 
-function addParam(url, param, value) {
-    var parser = new URL(url);
-    parser.searchParams.set(param, value);
-    window.location.replace(parser.href);
-    console.log(parser.href);
-    return false;
-}
 
-function changeRegione(Regione) {
-    console.log("Change regione", Regione);
-    window.cy.elements().unselect();
-    $("#select-SLL").empty();
-    getSLL(Regione, function (data) {
-        console.log(data);
+function changeRegione(reg, year, loadOnGraph = true) {
+    console.log("Change regione", reg, loadOnGraph);
+    const regDropdownOption = $(`#select-Regione > option[value="${reg}"]`);
+    const sllDropdown = $("#select-SLL");
+
+    if (regDropdownOption.length === 0) {
+        // no region found
+        return;
+    }
+
+    // each time we change the region, we reset the page
+    resetAll();
+
+    // select the dropdown option
+    $(`#select-Regione > option[value=""]`).prop("selected", false);
+    regDropdownOption.prop('selected', true);
+
+    // update the current state
+    window.currentState.reg = reg;
+
+    loading(true);
+    getSLL(reg, function (data) {
         var slls = data.nodes;
+        console.log(slls);
         if (slls.length > 0) {
-            $("#select-SLL").append(`<option>Seleziona un'Area Metropolitana/SLL</option>`);
+            sllDropdown.append(`<option value="">Seleziona un'Area Metropolitana/SLL</option>`);
         }
-        for (var sll of slls) {
-            $("#select-SLL").append(`<option value="${sll.id}">${sll.name}</option>`);
+        for (const sll of slls) {
+            sllDropdown.append(`<option value="${sll.code}">${sll.name}</option>`);
         }
+
         if (slls.length > 0) {
             $("#dati-download").prop('disabled', false);
             $("#mappa-download").prop('disabled', false);
-            $("#select-SLL").prop('disabled', false);
+            sllDropdown.prop('disabled', false);
             $("#buttonCluster").prop('disabled', false);
             $(".anchorCluster").removeClass('disabled');
-        } else {
-            window.cy.elements().remove();
         }
-        uploadData(data);
+
+        if (loadOnGraph) {
+            window.cy.elements().unselect();
+            window.cy.elements().remove();
+            loadGraph(data);
+        }
+
+        loading(false);
     });
-
-    $("#select-SLL").prop('disabled', true);
-    $("#buttonCluster").prop('disabled', true);
-    $(".anchorCluster").addClass('disabled');
-    $("#dati-download").prop('disabled', true);
-    $("#mappa-download").prop('disabled', true);
-
 }
 
-function selectSLL(idSLL) {
+function selectSLL(sllCode) {
+    const sllDropdownOption = $(`#select-SLL > option[value="${sllCode}"]`);
+    $(`#select-SLL > option[value=""]`).prop("selected", false);
+    sllDropdownOption.prop('selected', true);
+
     window.cy.elements().unselect();
-    window.cy.elements(`node[id="${idSLL}"]`).select();
+
+    window.currentState.sll = sllCode;
+    window.cy.elements(`node[code="${sllCode}"]`).select();
 }
 
 function evidenziaNodi(TipoNodo) {
@@ -316,62 +497,30 @@ function downloadDati() {
 }
 
 
-/* Per Cytoscape */
-function toggleMap() {
-    if (!window.cyMap) {
-        enableMap()
-    } else {
-        disableMap()
-    }
+// state listeners
+function onRegioneDropdown(newValue) {
+    newValue = newValue === "" ? undefined : newValue;
+
+    updateURL('sll', undefined);
+    updateURL('cluster', undefined);
+
+    updateURL('reg', newValue);
 }
 
-function enableMap() {
-    if (window.cyMap) {
-        return;
-    }
-    cy.container().setAttribute("id", "map");
+function onSllDropdown(newValue) {
+    newValue = newValue === "" ? undefined : newValue;
 
-    // cy.panzoom('destroy');
-
-    const cyMap = cy.L({
-        minZoom: 0,
-        maxZoom: 18,
-    }, {
-        getPosition: (node) => {
-            const lng = node.data('lng');
-            const lat = node.data('lat');
-            return typeof lng === "number" && typeof lat === "number"
-                ? {lat, lng}
-                : null;
-        },
-        setPosition: (node, lngLat) => {
-            if (typeof node.data('lon') === "number" && typeof node.data('lat') === "number") {
-                node.data('lng', lngLat.lng);
-                node.data('lat', lngLat.lat);
-            } else {
-                node.scratch('leaflet', lngLat);
-            }
-        },
-        animate: true,
-        animationDuration: 500,
-        // hideNonPositional: true,
-        delayOnMove: 50,
-        runLayoutOnViewport: false,
-    });
-
-    window.cyMap = cyMap;
-    L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        minZoom: 0,
-        maxZoom: 18,
-    }).addTo(window.cyMap.map);
+    updateURL('sll', newValue);
 }
 
-function disableMap() {
-    if (window.cyMap) {
-        window.cyMap.destroy();
-        window.cyMap = undefined;
-    }
-    // cy.panzoom();
+function onClusterClick(newValue) {
+    updateURL('cluster', newValue)
+}
+
+function onResetButtonClick() {
+    const select = document.querySelector('#select-Regione');
+    select.value = "";
+    select.dispatchEvent(new Event('change'));
 }
 
 
