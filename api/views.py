@@ -1,17 +1,21 @@
 # Create your views here.
-import re
-from django.http import QueryDict, HttpRequest
-from neomodel import Q, OUTGOING, Traversal, db, StructuredNode
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from .models import Exporting, Ateco, Sll, AtecoRel, Emerging, Exporting, ClusterContieneRel
-from .utlis import QueryFilterGen, PrinQuery
-
 from time import time
 
+from django.http import HttpRequest
+from neomodel import db
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-class GetCusters(APIView):
+from .models import Ateco, Sll, AtecoRel, Emerging, Exporting, ClusterContieneRel
+from .utlis import QueryFilterGen, PrinQuery
+
+
+def return_error(err, stat=status.HTTP_400_BAD_REQUEST):
+    return Response(data=dict(status="error", msg=str(err)), status=stat)
+
+
+class GetClusters(APIView):
     def get(self, request):
         cluster_type = request.GET.get("type")
         clusters_obj: dict = {
@@ -20,8 +24,11 @@ class GetCusters(APIView):
         }
         cluster = clusters_obj[cluster_type]
 
-        res = [element.serialize for element in cluster.nodes.all()]
-        return Response(data=res, status=status.HTTP_200_OK)
+        try:
+            res = [element.serialize for element in cluster.nodes.all()]
+            return Response(data=res, status=status.HTTP_200_OK)
+        except Exception as err:
+            return return_error(err, stat=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class GetSll(APIView):
@@ -33,7 +40,7 @@ class GetSll(APIView):
 
         if not sll_region.upper() == "CALABRIA":
             return Response(data=dict(nodes=[], rels=[]), status=status.HTTP_200_OK)
-            
+
         qs_generator = QueryFilterGen()
         prin_query = PrinQuery()
 
@@ -44,17 +51,22 @@ class GetSll(APIView):
         elif sll_ids and len(sll_ids) > 0:
             sll_qs = qs_generator.filter_sll(idlist=sll_ids)
 
-        nodeset = prin_query.get_sll(sll_qs)
-        sll_list = [node.serialize for node in nodeset]
-        return Response(data=dict(nodes=sll_list, rels=[]), status=status.HTTP_200_OK)
+        try:
+            nodeset = prin_query.get_sll(sll_qs)
+            sll_list = [node.serialize for node in nodeset]
+            return Response(data=dict(nodes=sll_list, rels=[]), status=status.HTTP_200_OK)
+        except Exception as err:
+            return return_error(err, stat=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class GetExporting(APIView):
     def get(self, request):
-        res = [exporting.serialize for exporting in Exporting.nodes.all()]
-        # print(res)
+        try:
+            res = [exporting.serialize for exporting in Exporting.nodes.all()]
+            return Response(data=res)
+        except Exception as err:
+            return return_error(err, stat=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        return Response(data=res)
 
 class GraphBuild(APIView):
     """
@@ -161,7 +173,7 @@ class CompleteQuery(APIView):
         year = int(request.GET.get('y', 2018))
 
         print(exporting, year)
-        
+
         query = """
             MATCH (ex:Exporting {name: $exporting})-[ex_contiene:CLUSTER_CONTIENE]-(a:Ateco)-[ex_relaziona:CLUSTER_RELAZIONA]-(s:Sll) 
             WHERE ex.name = ex_relaziona.cluster and ex_relaziona.year = $year and (ex_relaziona.units > 0 or ex_relaziona.employees_avg > 0)
@@ -183,32 +195,35 @@ class CompleteQuery(APIView):
             's2': Sll
         }
 
-        print("Seraching results for ", exporting, year)
-        result, meta = db.cypher_query(query, {'exporting': exporting, "year": year})
-        print("Meta: ", meta)
+        try:
+            print("Seraching results for ", exporting, year)
+            result, meta = db.cypher_query(query, {'exporting': exporting, "year": year})
+            print("Meta: ", meta)
 
-        inflated_ids = []  # memorize already inflated elements
-        to_return = []
+            inflated_ids = []  # memorize already inflated elements
+            to_return = []
 
-        start_time = time() * 1000
-        for row in result:
-            zippo = zip(meta, row)
-            for m, el in zippo:
-                # print(m, el)
-                if el.id in inflated_ids:
-                    continue
+            start_time = time() * 1000
+            for row in result:
+                zippo = zip(meta, row)
+                for m, el in zippo:
+                    # print(m, el)
+                    if el.id in inflated_ids:
+                        continue
 
-                inflate_start = time() * 1000
-                element = classes[m].inflate(el).serialize
-                # if not element['id'] in added_ids[element['group']]:
-                to_return.append(element)
-                # added_ids[element["group"]].append(element["id"])
-                inflated_ids.append(el.id)
+                    inflate_start = time() * 1000
+                    element = classes[m].inflate(el).serialize
+                    # if not element['id'] in added_ids[element['group']]:
+                    to_return.append(element)
+                    # added_ids[element["group"]].append(element["id"])
+                    inflated_ids.append(el.id)
 
-                inflate_end = time() * 1000
-                print(f"Inflate time: {inflate_end-inflate_start}")
+                    inflate_end = time() * 1000
+                    print(f"Inflate time: {inflate_end - inflate_start}")
 
-        end_time = time() * 1000
+            end_time = time() * 1000
 
-        print(f"Returning {len(to_return)} elements from {len(result)} rows. Time: {end_time-start_time} ms")
-        return Response(data=to_return, status=status.HTTP_200_OK)
+            print(f"Returning {len(to_return)} elements from {len(result)} rows. Time: {end_time - start_time} ms")
+            return Response(data=to_return, status=status.HTTP_200_OK)
+        except Exception as err:
+            return return_error(err, stat=status.HTTP_500_INTERNAL_SERVER_ERROR)
