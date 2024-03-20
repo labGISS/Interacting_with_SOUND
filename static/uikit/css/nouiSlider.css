@@ -1,0 +1,56 @@
+/*
+* Consistent customization for all noUi slider across the site
+*/
+.noUi-target {
+    /*height: 10px;*/
+    background-color: transparent;
+}
+
+.noUi-target,
+.noUi-target .noUi-handle {
+    box-shadow: none;
+}
+
+/* Hide markers on slider handles */
+.noUi-target .noUi-handle::before,
+.noUi-target .noUi-handle::after {
+    display: none;
+}
+
+.noUi-target .noUi-connect {
+    background: var(--text-color-red-dark);
+}
+
+.noUi-target .noUi-handle {
+    height: 1.5em;
+    width: 1em;
+    /*top: -0.5em;*/
+    right: -0.5em; /* half the width */
+    background-color: var(--text-color-red);
+    cursor: pointer;
+}
+
+.noUi-target .noUi-pips .noUi-value-large {
+    -webkit-transition: all 0.1s ease-in-out;
+    -moz-transition: all 0.1s ease-in-out;
+    -o-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;
+}
+
+.noUi-target .noUi-pips .noUi-marker-large {
+    -webkit-transition: all 0.1s ease-in-out;
+    -moz-transition: all 0.1s ease-in-out;
+    -o-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;
+}
+
+.noUi-target .noUi-pips .active-pip {
+    color: var(--text-color-red-dark);
+    /*font-weight: bolder;*/
+    font-size: 1.35em;
+    /*transform: translate(-50%,30%);*/
+}
+.noUi-target .noUi-pips .noUi-marker-large:has(+ .active-pip)  {
+    height: 22px;
+    background: var(--text-color-red-dark);
+}

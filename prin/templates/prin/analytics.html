@@ -8,7 +8,6 @@
 {% block css %}
 {#    <link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">#}
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==" crossorigin="" />
-    
     <link href="{% static 'prin/css/style.css' %}" rel="stylesheet" type="text/css">
 {% endblock css %}
 
@@ -155,7 +154,7 @@
                     <!-- Range -->
                     <div class="mx-2 mt-5 text-center mb-5" style="position: sticky;">
                         <h5 class="mb-2">Seleziona l'anno di cui vuoi visualizzare i dati</h5>
-                        <div id="slider"></div>
+                        <div id="slider" class="noUi-clickable-pips noUi-active-pips" data-range-min="2011" data-range-max="2018"></div>
                     </div>
                 </div>
                 <div class="col-md-4 my-3">
@@ -215,7 +214,7 @@
     <script src="{% static 'vendor/cytoscape-d3-force.js' %}"></script>
 
     <script type="text/javascript" src="{% static 'vendor/cytoscape-leaflet-1.0.15-lock-nodes.min.js' %}"></script>
-    
+
     <script src="{% static 'prin/js/analytics/main.js' %}"></script>
     <script src="{% static 'prin/js/analytics/services.js' %}"></script>
     <script>

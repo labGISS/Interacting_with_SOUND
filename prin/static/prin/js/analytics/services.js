@@ -19,9 +19,10 @@ function getCluster(callback) {
     request("/api/exportings", null,  callback);
 }
 
-function getGraph(clusterName, anno = 2019, callback) {
+function getGraph(clusterName, year, callback) {
     var parameters = {
         e: clusterName,
+        y: year,
     }
     request("/api/complete", parameters,  callback);
 }

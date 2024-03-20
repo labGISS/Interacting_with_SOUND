@@ -122,6 +122,10 @@ const CY_DEFAULT_LAYOUT = {
     infinite: true,
 }
 
+const yearsSlider = document.getElementById('slider');
+const yearRangeMin = parseInt(yearsSlider.getAttribute('data-range-min')),
+    yearRangeMax = parseInt(yearsSlider.getAttribute('data-range-max'));
+
 // update application state
 function updateURL(param, value) {
     pushSearchParametersString(updateLocationSearchParams(param, value));
@@ -277,23 +281,35 @@ function resetControls() {
     $(".anchorCluster").addClass('disabled');
     $("#dati-download").prop('disabled', true);
     $("#mappa-download").prop('disabled', true);
+
+    window.yearsSlider.noUiSlider.reset(false);
+}
+
+function resetGraph() {
+    window.cy.elements().unselect()
+    window.cy.elements().remove();
+}
+
+function resetURL() {
+    Object.keys(window.currentState).forEach((param) => updateURL(param, undefined));
 }
 
 /**
  * Reset all requested elements: clear the state, reset the controls, clear the graph
  */
-function resetAll(state = true, controls = true, graph = true) {
+function resetAll(state = true, controls = true, graph = true, URL = false) {
     if (state) {
         window.currentState = {
             reg: undefined,
             sll: undefined,
             cluster: undefined,
-            year: 2018
+            year: undefined
         }
     }
 
     controls && resetControls();
-    graph && window.cy.elements().remove();
+    graph && resetGraph();
+    URL && resetURL();
 
 }
 
@@ -324,20 +340,23 @@ function initPage() {
 function loadQueryParameters(parameters) {
     const reg = parameters.reg;
     const sll = parameters.sll;
-    const year = parameters.year | 2018;
+    const year = parameters.year || yearRangeMax;
     const cluster = parameters.cluster;
 
     console.log(reg, sll, year, cluster);
 
+    if (year) {
+        // set the years slider to the correct value
+        window.yearsSlider.noUiSlider.set(year, false);
+    }
+
     if (!reg) {
-        // if no region selected, reset all
-        resetAll();
         return;
     }
 
-    console.log("window.cy.elements().empty()", window.cy.elements().empty(), "!cluster", !cluster);
     if (year !== window.currentState.year || reg !== window.currentState.reg) {
-        changeRegione(reg, year, window.cy.elements().empty() && !cluster); // load slls on graph only if neither cluster nor sll is selected
+        const showOnGraph = (window.cy.elements().empty() || year !== window.currentState.year) && !cluster;
+        changeRegione(reg, year, !cluster); // load slls on graph only if neither cluster nor sll is selected
     }
 
     if (cluster && (year !== window.currentState.year || cluster !== window.currentState.cluster)) {
@@ -360,6 +379,10 @@ function changeCluster(clusterName, year) {
         loading(false);
     });
     window.currentState.cluster = clusterName;
+    window.currentState.year = year;
+
+    // set the years slider to the correct value
+    window.yearsSlider.noUiSlider.set(year, false);
 }
 
 function displayElementInfobox(data) {
@@ -415,8 +438,12 @@ function changeRegione(reg, year, loadOnGraph = true) {
     $(`#select-Regione > option[value=""]`).prop("selected", false);
     regDropdownOption.prop('selected', true);
 
+    // set the years slider to the correct value
+    window.yearsSlider.noUiSlider.set(year, false);
+
     // update the current state
     window.currentState.reg = reg;
+    window.currentState.year = year;
 
     loading(true);
     getSLL(reg, function (data) {
@@ -499,6 +526,11 @@ function downloadDati() {
 
 // state listeners
 function onRegioneDropdown(newValue) {
+    if (!newValue) {
+        // if no region selected, reset all
+        resetAll(true, true, true, true);
+    }
+
     newValue = newValue === "" ? undefined : newValue;
 
     updateURL('sll', undefined);
@@ -513,96 +545,49 @@ function onSllDropdown(newValue) {
     updateURL('sll', newValue);
 }
 
+function onYearSlider(values, handleIndex, unencoded, tap, positions, noUiSlider) {
+    updateURL('year', unencoded[handleIndex]);
+}
+
 function onClusterClick(newValue) {
-    updateURL('cluster', newValue)
+    updateURL('cluster', newValue);
 }
 
 function onResetButtonClick() {
+    resetAll(true, true, true, true);
+
     const select = document.querySelector('#select-Regione');
     select.value = "";
     select.dispatchEvent(new Event('change'));
 }
 
 
-/* SLider Vincenzo */
-
-(function ($, undefined) {
-
-    // Defines the custom implementation of the built-in slider widget.
-    $.widget("app.slider", $.ui.slider, {
-
-        // The new "ticks" option defaults to false.
-        options: {
-            ticks: false
-        },
-
-        // Called when the slider is instantiated.
-        _create: function () {
-
-            // Call the orginal constructor, creating the slider normally.
-            this._super();
-
-            // If the "ticks" option is false or the "step" option is
-            // less than 5, there's nothing to do.
-            if (!this.options.ticks || this.options.step < 1) {
-                return;
+/* Slider  */
+noUiSlider.create(yearsSlider, {
+    start: [yearRangeMax],
+    step: 1,
+    range: {
+        'min': yearRangeMin,
+        'max': yearRangeMax
+    },
+    behaviour: 'smooth-steps-tap',
+    // format: {
+    //     to: value => Math.floor(value),
+    //     from: value => parseInt(value)
+    // },
+    pips: {
+        mode: 'steps',
+        density: 3,
+        filter: (value, type) => {
+            // only for displayed numbers we change the display type
+            if (type > 0) {
+                // must return 1 to display large numbers, 2 to display small nubers
+                return 1;
             }
-
-            // Setup some variables for rendering the tick marks below the slider.
-            var cnt = this.options.min,
-                background = this.element.css("border-color"),
-                left;
-
-            var count = (this.options.max - this.options.min) / this.options.step;
-            var iterator = 0;
-
-            while (cnt <= this.options.max) {
-
-                // Compute the "left" CSS property for the next tick mark.
-                left = iterator * (100 / count)
-                if (cnt === this.options.max) {
-                    left = left - 0.2;
-                }
-
-                left = left.toFixed(2) + "%";
-
-                // Creates the tick div, and adds it to the element. It adds the
-                // "ui-slider-tick" class, which has common properties for each tick.
-                // It also applies the computed CSS properties, "left" and "background".
-                var tick = $("<div/>").addClass("ui-slider-tick")
-                    .appendTo(this.element)
-                    .css({left: left, background: background});
-
-
-                /* Cambiare il controllo per i numeri */
-                var number = $(`<div>${cnt}</div>`).css({
-                    position: 'relative',
-                    left: '-24px', /* -20px */
-                    top: '20px', /* 20px */
-                    'font-size': '17px',
-                    'font-weight': 'bold',
-                });
-                tick.append(number);
-
-                cnt += this.options.step;
-                iterator++;
-            }
-
+            return 0;
         }
+    }
+});
 
-    });
-
-    $(function () {
-
-        $("#slider").slider({
-            range: "min",
-            value: 2019,
-            min: 2011, /* 2011 */
-            max: 2019, /* 2019 */
-            step: 1,
-            ticks: true,
-        });
-
-    });
-
-})(jQuery);
+yearsSlider.noUiSlider.on('set', onYearSlider);
+window.yearsSlider = yearsSlider; // save the slider
