@@ -12,14 +12,8 @@
     <link rel="stylesheet" href="//use.fontawesome.com/9ecd38a87f.css">
 
     <!-- Main Style -->
-    <style>
-        .maincontainer {
-            {#padding-top: 56px;#}
-            margin: 0;
-            padding-right: 0;
-            padding-left: 0;
-        }
-    </style>
+    <link href="{% static 'common/css/base.css' %}" rel="stylesheet" type="text/css">
+
     <!-- Custom styles from apps -->
     {% block css %}
     {% endblock css %}
@@ -37,6 +31,9 @@
 <div class="container-fluid maincontainer">
     {% block content %}
     {% endblock content %}
+
+
+    <div id="bsLiveAlertPlaceholder" class="d-inline-flex justify-content-center"></div>
 </div>
 
 <!-- JavaScript Loading -->
@@ -45,6 +42,8 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 <script src='//ajax.aspnetcdn.com/ajax/knockout/knockout-3.4.2.js'></script>
 
+<!-- Global utilities -->
+<script src="{% static 'uikit/js/bsUtils.js' %}"></script>
 <!-- Search Apps JavaScript -->
 {% block scripts %}
 {% endblock scripts %}
