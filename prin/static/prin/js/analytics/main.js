@@ -1,8 +1,8 @@
 const NODE_COLORS = {
-    'Sll': '#03038c',
-    'Ateco': '#bb0000',
-    'Exporting': '#b4b400',
-    'Emerging': '#008000'
+    'Sll': '#118ab2',
+    'Ateco': '#ef476f',
+    'Exporting': '#ffd166',
+    'Emerging': '#06d6a0'
 };
 
 const NODE_LABEL_ATTRIBUTE = {
@@ -64,7 +64,7 @@ const CY_STYLE = [
     {
         selector: 'node:selected',
         style: {
-            'border-color': '#ff0000',
+            'border-color': '#a34662',
             'border-width': 6,
             'border-opacity': 0.5
         }
@@ -83,16 +83,22 @@ const CY_STYLE = [
         }
     },
     {
+        selector: '.highlighted',
+        style: {
+            "z-index": "999999"
+        }
+    },
+    {
         selector: 'node.highlighted',
         style: {
-            "border-color": '#e1125b',
-            "color": "#e1125b"
+            "border-color": '#a34662',
+            "color": "#a34662",
         }
     },
     {
         selector: 'edge.highlighted',
         style: {
-            "line-color": '#e1125b',
+            "line-color": '#a34662',
             "width": 1
         }
     },
@@ -104,6 +110,13 @@ const CY_STYLE = [
     },
 ];
 
+const CY_CHARGE_FORCE = {
+    'Sll': -500,
+    'Ateco': -300,
+    'Exporting': -300,
+    'Emerging': -300,
+};
+
 const CY_DEFAULT_LAYOUT = {
     name: 'd3-force',
     animate: true,
@@ -112,12 +125,10 @@ const CY_DEFAULT_LAYOUT = {
     linkId: function id(d) {
         return d.id;
     },
-    linkDistance: 40,
-    manyBodyStrength: -300,
-    // collideRadius: function (p) {
-    //     console.log("Collide: ", p);
-    //     return 3;
-    // },
+    linkDistance: 100,
+    manyBodyStrength: function (node) {
+        return CY_CHARGE_FORCE[node['labels'][0]];
+    },
     randomize: false,
     infinite: true,
 }
@@ -154,18 +165,36 @@ function initCy() {
     });
 
     cy.on('select', 'node', function (evt) {
-        evt.target.neighborhood().addClass("highlighted");
+        const targetNode = evt.target;
+
+        // TODO: Better handling selection of all paths from a cluster to the related slls
+        if (targetNode.data()['labels'][0] === "Emerging" || targetNode.data()['labels'][0] === "Exporting") {
+            targetNode.neighborhood().forEach((atecos) => {
+                atecos.addClass('highlighted');
+                if (atecos.isNode()) { // ateco
+                    atecos.neighborhood(`edge[cluster = '${targetNode.data()['name']}']`).forEach((sllEdges) => {
+                        sllEdges.addClass('highlighted');
+                        sllEdges.target().addClass('highlighted');
+                    })
+                }
+            });
+        } else {
+            targetNode.neighborhood().addClass("highlighted");
+        }
         displayElementInfobox(evt.target.data())
     });
 
     cy.on('select', 'edge', function (evt) {
         evt.target.addClass("highlighted");
+        evt.target.source().addClass("highlighted");
+        evt.target.target().addClass("highlighted");
         displayElementInfobox(evt.target.data())
     });
 
     cy.on('unselect', '*', function (evt) {
         evt.target.removeClass("highlighted");
-        evt.target.neighborhood().removeClass("highlighted");
+        // evt.target.neighborhood().removeClass("highlighted");
+        evt.cy.elements().removeClass("highlighted");
         clearElementInfobox()
     });
 }
