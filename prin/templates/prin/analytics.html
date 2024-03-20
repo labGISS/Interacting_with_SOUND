@@ -64,13 +64,13 @@
                 <div class="col-md-8 my-3 row">
                     <div class="cytoscape-screen">
                         <div class="loading-overlay">
-                            <div class="spinner-border text-primary spinner" role="status">
+                            <div class="spinner-border spinner red" role="status">
                                 <span class="visually-hidden">Loading...</span>
                             </div>
                         </div>
 
                         <div class="graph-overlay border border-3 position-relative">
-                            <button type="button" class="reset btn btn-success position-absolute top-0 end-0 btn-sm"
+                            <button type="button" class="reset btn btn-outline-red position-absolute top-0 end-0 btn-sm"
                                     style="width: auto; margin: 5px 20px; z-index: 600;" onclick="onResetButtonClick()">Reset
                             </button>
                             <div class="legend border border-secondary rounded-3 pb-1 mx-4 my-2 position-absolute bottom-0 start-0 fw-normal"
@@ -93,7 +93,7 @@
                     {% if exporting_list %}
 
                         <div class="d-flex flex-row justify-content-between mb-3">
-                            <div class="d-flex align-items-center">
+                            <div class="d-flex align-items-center red">
                                 <h6>CLUSTER</h6>
                             </div>
 
@@ -138,7 +138,7 @@
 
                             <div class="d-flex align-items-center">
                                 <div class="dropdown">
-                                    <button id="buttonCluster" onclick="myFunction()" class="dropbtn btn btn-secondary" disabled>
+                                    <button id="buttonCluster" onclick="myFunction()" class="dropbtn btn btn-red" disabled>
                                         <img src="{% static 'prin/imgs/search.png' %}" style="width: 25px;" alt=""> Cluster
                                     </button>
                                     <div id="myDropdown" class="dropdown-content fs-6" style="overflow: scroll; height: 200px;">
@@ -188,7 +188,7 @@
                                     <img src="{% static 'prin/imgs/downloadMappa.png' %}" style="width: 16px;" alt=""> Mappa
                                 </button>
                                 <a href="{% url 'info' %}">
-                                    <button type="button" class="btn btn-info btn-sm my-1 mx-1">Info</button>
+                                    <button type="button" class="btn btn-red btn-sm my-1 mx-1">Info</button>
                                 </a>
                             </div>
                         </div>

@@ -1,3 +1,12 @@
+:root {
+    --form-control-color: rgb(220, 220, 220);
+    --form-control-color-dark: rgb(120, 120, 120);
+    --form-control-color-darker: rgb(81, 81, 81);
+    --form-control-disabled: rgb(240, 240, 240);
+    --text-color-red: rgb(163, 70, 98);
+    --text-color-red-dark: rgb(119, 50, 72);
+}
+
 .maincontainer {
     margin: 0;
     padding-right: 0;
@@ -9,4 +18,13 @@
     top: 25px;
     width: 100%;
     z-index: 9999;
+}
+
+/* Text styling */
+.red {
+    color: var(--text-color-red);
+}
+
+.dark-red {
+    color: var(--text-color-red);
 }
