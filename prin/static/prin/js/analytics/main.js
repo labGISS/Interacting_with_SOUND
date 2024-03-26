@@ -113,8 +113,8 @@ const CY_STYLE = [
 const CY_CHARGE_FORCE = {
     'Sll': -500,
     'Ateco': -300,
-    'Exporting': -300,
-    'Emerging': -300,
+    'Exporting': -500,
+    'Emerging': -500,
 };
 
 const CY_DEFAULT_LAYOUT = {
@@ -133,6 +133,26 @@ const CY_DEFAULT_LAYOUT = {
     infinite: true,
 }
 
+const CY_MAP_LAYOUT = {
+    name: 'd3-force',
+    animate: true,
+    maxSimulationTime: 3000,
+    fixedAfterDragging: true,
+    linkId: function id(d) {
+        return d.id;
+    },
+    linkDistance: 100,
+    manyBodyStrength: function (node) {
+        return CY_CHARGE_FORCE[node['labels'][0]];
+    },
+    xX: 150,
+    yY: 150,
+    xStrength: 1,
+    yStrength: 0.5,
+    randomize: false,
+    infinite: true,
+};
+
 const yearsSlider = document.getElementById('slider');
 const yearRangeMin = parseInt(yearsSlider.getAttribute('data-range-min')),
     yearRangeMax = parseInt(yearsSlider.getAttribute('data-range-max'));
@@ -150,7 +170,7 @@ function initCy() {
         zoom: 1.0,
         minZoom: 0.7,
         maxZoom: 2.5,
-        layout: CY_DEFAULT_LAYOUT,
+        // layout: CY_DEFAULT_LAYOUT,
     });
 
     // cy.panzoom();
@@ -199,6 +219,17 @@ function initCy() {
     });
 }
 
+function runLayout(layoutOptions) {
+    if (window.currentLayout) {
+        window.currentLayout.stop();
+    }
+
+    window.currentLayout = window.cy.layout(layoutOptions);
+    window.currentLayout.run();
+
+    return window.currentLayout;
+}
+
 function loadGraph(data) {
     var elements;
     if (Array.isArray(data)) {
@@ -223,7 +254,8 @@ function loadGraph(data) {
         };
     }
     window.cy.add(elements);
-    window.cy.layout(CY_DEFAULT_LAYOUT).once('layoutstop', () => loading(false)).run();
+    runLayout(CY_DEFAULT_LAYOUT).once('layoutstop', () => loading(false));
+    // window.currentLayout = window.cy.layout(CY_DEFAULT_LAYOUT)/*.once('layoutstop', () => loading(false))*/.run();
 }
 
 function toggleMap() {
@@ -240,6 +272,8 @@ function enableMap() {
     }
     window.cy.container().setAttribute("id", "graph");
     // window.cy.panzoom('destroy');
+
+    runLayout(CY_MAP_LAYOUT);
 
     const cyMap = window.cyMap = window.cy.L({
         minZoom: 0,
@@ -262,7 +296,6 @@ function enableMap() {
         // },
         animate: true,
         animationDuration: 500,
-        layout: CY_DEFAULT_LAYOUT
     });
 
     L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -275,9 +308,10 @@ function disableMap() {
     if (window.cyMap) {
         window.cyMap.destroy();
         window.cyMap = undefined;
-
         // window.cy.panzoom();
     }
+
+    runLayout(CY_DEFAULT_LAYOUT);
 }
 
 function myFunction() {
