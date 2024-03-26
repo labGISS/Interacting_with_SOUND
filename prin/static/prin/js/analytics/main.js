@@ -314,6 +314,21 @@ function resetControls() {
     window.yearsSlider.noUiSlider.reset(false);
 }
 
+function disableControls(disabled) {
+    $("#select-SLL").empty().prop('disabled', disabled);
+    $("#buttonCluster").prop('disabled', disabled);
+    $("#dati-download").prop('disabled', disabled);
+    $("#mappa-download").prop('disabled', disabled);
+
+    if(disabled) {
+        $(".anchorCluster").addClass('disabled');
+        window.yearsSlider.noUiSlider.disable();
+    } else {
+        $(".anchorCluster").removeClass('disabled');
+        window.yearsSlider.noUiSlider.enable();
+    }
+}
+
 function resetGraph() {
     window.cy.elements().unselect()
     window.cy.elements().remove();
@@ -343,6 +358,7 @@ function resetAll(state = true, controls = true, graph = true, URL = false) {
 }
 
 function loading(isLoading) {
+    disableControls(isLoading);
     if (isLoading) {
         document.querySelector('.cytoscape-screen .loading-overlay').classList.add('active');
     } else {
@@ -499,7 +515,7 @@ function changeRegione(reg, year, loadOnGraph = true) {
             loadGraph(data);
         }
 
-        loading(false);
+        // loading(false);
     });
 }
 

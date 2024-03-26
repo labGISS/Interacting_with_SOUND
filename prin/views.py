@@ -16,7 +16,7 @@ def info(request):
 def analytics(request):
     try:
         exporting = [exporting.serialize for exporting in Exporting.nodes.all()]
-        exporting_sublist = split(exporting, 7)
+        exporting_sublist = split(exporting, 8)
         exporting_sublist = [l for l in exporting_sublist]
 
         return render(request, 'prin/analytics.html', context={'exporting_list': exporting,
