@@ -1,4 +1,6 @@
 # Create your views here.
+import json
+import os
 from time import time
 
 from django.http import HttpRequest
@@ -166,6 +168,38 @@ class ClusterTest(APIView):
         return Response(data=dict(nodes=nodes, rels=relationships), status=status.HTTP_200_OK)
 
 
+class Query3D(APIView):
+
+    def get(self, request: HttpRequest):
+        units = request.GET.get('units')
+
+        query = """
+            MATCH (s:Sll)-[r:CLUSTER_RELAZIONA]-(a:Ateco)
+            WHERE r.units > $units
+            RETURN { id: s.code, label:head(labels(s)), caption:s.name, lat:s.loc.latitude, lng: s.loc.longitude } as source, { id: id(a), label:head(labels(a)), caption:a.code } as target, { weight:log(r.units)/2, type:type(r), imprese: r.units} as rel
+        """
+
+        try:
+            result, meta = db.cypher_query(query, {'units': int(units)})
+            # to_return = [dict(zip(meta, row)) for row in result]
+            return Response(data=result, status=status.HTTP_200_OK)
+        except Exception as err:
+            return return_error(err, stat=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class SLLMapData(APIView):
+
+    def get(self, request: HttpRequest):
+        module_dir = os.path.dirname(__file__)  # get current directory
+        file_path = os.path.join(module_dir, 'data', 'SLL.json')
+
+        map_data = {}
+        with open(file_path) as json_data:
+            map_data = json.load(json_data)
+
+        return Response(data=map_data, status=status.HTTP_200_OK)
+
+
 class CompleteQuery(APIView):
 
     def get(self, request: HttpRequest):
@@ -227,3 +261,7 @@ class CompleteQuery(APIView):
             return Response(data=to_return, status=status.HTTP_200_OK)
         except Exception as err:
             return return_error(err, stat=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# def sll_map_data(request: HttpRequest):
+

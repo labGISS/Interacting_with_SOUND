@@ -102,6 +102,10 @@ main {
     box-shadow: -3px 3px gray;
 }
 
+.graph-buttons {
+    z-index: 600;
+}
+
 a{
     text-decoration: none!important;
 }

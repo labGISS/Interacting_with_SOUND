@@ -19,8 +19,9 @@ from django.views.generic.base import RedirectView
 
 urlpatterns = [
     path('prin/', include('prin.urls')),
+    path('3d/', include('prin3d.urls')),
     path('api/', include('api.urls')),
     path('testings/', include('testings.urls')),
     path('admin/', admin.site.urls),
-    path('', RedirectView.as_view(pattern_name='index', permanent=False)),
+    path('', RedirectView.as_view(pattern_name='prin:index', permanent=False)),
 ]

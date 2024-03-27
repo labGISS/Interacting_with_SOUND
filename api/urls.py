@@ -1,5 +1,5 @@
 from django.urls import re_path
-from .views import GetSll, GraphBuild, Test, ClusterTest, CompleteQuery, GetExporting, GetClusters
+from .views import GetSll, GraphBuild, Test, ClusterTest, CompleteQuery, GetExporting, GetClusters, Query3D, SLLMapData
 
 app_name = 'api'
 urlpatterns = [
@@ -10,4 +10,6 @@ urlpatterns = [
     re_path(r'^cluster[/]?$', ClusterTest.as_view(), name='cluster_test'),
     re_path(r'^clusters[/]?$', GetClusters.as_view(), name='get_clusters'),
     re_path(r'^complete[/]?$', CompleteQuery.as_view(), name='complete_query'),
+    re_path(r'^graph3d[/]?$', Query3D.as_view(), name='3d_query'),
+    re_path(r'^sll-map[/]?$', SLLMapData.as_view(), name='sll_map_data'),
 ]

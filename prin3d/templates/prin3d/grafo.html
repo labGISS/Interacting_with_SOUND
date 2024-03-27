@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block head_title %}
+    3D - PRIN
+{% endblock head_title %}
+
+{% block css %}
+    {#    <link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">#}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+
+    <link rel="stylesheet" href="{% static 'prin3d/css/grafo.css' %}"/>
+    <style>
+        .clickable { cursor: unset !important }
+    </style>
+{% endblock css %}
+
+{% block content %}
+    <div class="my-3 mx-3 lead">
+        <!-- Navbar con il tasto Home e i bottoni relativi alle varie funzionalità -->
+        <nav class="navbar navbar-expand-lg navbar-light border-bottom border-secondary fixed-top navbar-fixed-top bg-white">
+            <div class="container-fluid">
+                <a class="navbar-brand" onclick="location.reload()" style="width: 200px; cursor: pointer;">
+                    <img src="{% static 'prin/imgs/SOUND_logo-01.png' %}" style="width: 100%" alt=""></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav" style="flex-grow: 0">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="btn btn-outline-primary mx-3 my-2" style="width: 90px" href="{% url 'prin:analytics' %}">
+                                Grafo <br>
+                                <img src="{% static 'prin/imgs/Graph.png' %}" style="width: 40px" alt="">
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-outline-secondary mx-3 my-2" href="{% url 'prin3d:grafo' %}"
+                               style="width: 90px">
+                                3D <br>
+                                <img src="{% static 'prin/imgs/cube.png' %}" style="width: 40px" alt="">
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <button type="button" class="btn btn-outline-success mx-3 my-2" style="width: 90px">
+                                Analisi <br>
+                                <img src="{% static 'prin/imgs/Analytics.webp' %}" style="width: 40px" alt="">
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button type="button" class="btn btn-outline-danger mx-3 my-2" style="width: 90px">
+                                Trend <br>
+                                <img src="{% static 'prin/imgs/Trend.webp' %}" style="width: 40px" alt="">
+
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+
+        <!-- Parte centrale del sito web -->
+        <main class="container-fluid">
+            <div class="filter-form-container row">
+                <form class="col-md-12" id="aziendeFilterForm">
+                    <span class="nav-item"> Collegamenti con minimo </span>
+                    <input id="aziendeFilterInput" class="form-control d-inline" type="number" placeholder="numero" value="0" aria-label="Filtra">
+                    <span class="">aziende</span>
+                    <button class="btn btn-outline-red col-md-1" type="submit">Filtra</button>
+                </form>
+            </div>
+            <div class="row display-container">
+                <div id="3d-graph" class="col-md-6 black"></div>
+                <div id="mapid" class="col-md-6"></div>
+            </div>
+        </main>
+    </div>
+{% endblock content %}
+
+{% block scripts %}
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    <script src="//unpkg.com/3d-force-graph"></script>
+    <script src="https://unpkg.com/three@0.160.1"></script>
+    <script src="//unpkg.com/three-spritetext"></script>
+    <script src="https://unpkg.com/neo4j-driver"></script>
+
+    <script src="{% static 'prin3d/js/services.js' %}"></script>
+    <script src="{% static 'prin3d/js/grafo.js' %}"></script>
+{% endblock scripts %}

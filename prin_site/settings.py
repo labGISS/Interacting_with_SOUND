@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'django_neomodel',
     'rest_framework',
     'prin.apps.PrinConfig',
+    'prin3d.apps.Prin3DConfig',
     'api.apps.ApiConfig',
     'testings.apps.TestingsConfig',
 ]
@@ -132,8 +133,10 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
-
-STATIC_URL = os.environ.get("DJANGO_STATIC_URL", "/prin/static/")
+STATICFILES_DIRS = [
+    BASE_DIR / 'static'
+]
+STATIC_URL = os.environ.get("DJANGO_STATIC_URL", "/static/")
 STATIC_ROOT = os.environ.get("DJANGO_STATIC_ROOT", "./staticfiles/")
 WHITENOISE_STATIC_PREFIX="/static/"
 
