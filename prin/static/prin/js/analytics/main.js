@@ -257,12 +257,17 @@ function loadGraph(data) {
     runLayout(CY_DEFAULT_LAYOUT).once('layoutstop', () => loading(false));
     // window.currentLayout = window.cy.layout(CY_DEFAULT_LAYOUT)/*.once('layoutstop', () => loading(false))*/.run();
 }
-
 function toggleMap() {
+    const mapBtn = document.querySelector('#toggleMapBtn');
+
     if (!window.cyMap) {
-        enableMap()
+        enableMap();
+        mapBtn.classList.remove('btn-outline-red');
+        mapBtn.classList.add('btn-red');
     } else {
-        disableMap()
+        disableMap();
+        mapBtn.classList.remove('btn-red');
+        mapBtn.classList.add('btn-outline-red');
     }
 }
 

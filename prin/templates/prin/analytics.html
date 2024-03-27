@@ -71,9 +71,15 @@
                         </div>
 
                         <div class="graph-overlay border border-3 position-relative">
-                            <button type="button" class="reset btn btn-outline-red position-absolute top-0 end-0 btn-sm"
-                                    style="width: auto; margin: 5px 20px; z-index: 600;" onclick="onResetButtonClick()">Reset
-                            </button>
+                            <div class="graph-buttons position-absolute top-0 end-0">
+                                <button type="button" class="reset d-block btn btn-red btn-sm"
+                                        style="width: 64px; margin: 5px 20px;" onclick="onResetButtonClick()">Reset
+                                </button>
+                                <button type="button" id="toggleMapBtn" class="reset btn d-block btn-outline-red btn-sm"
+                                        style="width: 64px; margin: 5px 20px;" onclick="toggleMap()">Mappa
+                                </button>
+                            </div>
+
                             <div class="legend border border-secondary rounded-3 pb-1 mx-4 my-2 position-absolute bottom-0 start-0 fw-normal"
                                  style="width: auto; z-index: 600;">
                                 <b>Legenda</b>
