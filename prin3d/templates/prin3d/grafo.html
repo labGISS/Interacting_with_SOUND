@@ -69,7 +69,11 @@
                     <span class="nav-item"> Collegamenti con minimo </span>
                     <input id="aziendeFilterInput" class="form-control d-inline" type="number" placeholder="numero" value="0" aria-label="Filtra">
                     <span class="">aziende</span>
-                    <button class="btn btn-outline-red col-md-1" type="submit">Filtra</button>
+                    <button class="btn btn-red" type="submit">
+                        <span class="loading-complete">Filtra</span>
+                        <span class="on-loading spinner-border spinner-border-sm visually-hidden" role="status" aria-hidden="true"></span>
+                        <span class="on-loading sr-only visually-hidden">Loading...</span>
+                    </button>
                 </form>
             </div>
             <div class="row display-container">

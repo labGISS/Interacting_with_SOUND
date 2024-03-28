@@ -49,9 +49,22 @@ function startLoading(unitsFilter) {
     const graphPromise = load3dData(unitsFilter);
     const sllPromise = loadSllData();
 
+    const loadingBtn = document.querySelector('#aziendeFilterForm button[type=submit]');
+    const loadingSpinnerElements = loadingBtn.querySelectorAll('.on-loading');
+    const filterText = loadingBtn.querySelector('.loading-complete');
+
+    loadingSpinnerElements.forEach(el=> el.classList.remove('visually-hidden'));
+    filterText.classList.add('visually-hidden');
+    loadingBtn.setAttribute('disabled', "");
+
     Promise.all([graphPromise, sllPromise]).then(([graphData, sllData]) => {
         Grafo(graphData);
         loadMap(sllData, graphData);
+
+        loadingSpinnerElements.forEach(el=> el.classList.add('visually-hidden'));
+        filterText.classList.remove('visually-hidden');
+        loadingBtn.removeAttribute('disabled');
+
     });
 }
 
