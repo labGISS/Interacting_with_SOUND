@@ -322,7 +322,7 @@ function Toggle_Testo() {
 
 function Toggle_Map() {
     if (window.state.map) {
-        $('#btn-toggle-mappa span.map-state').text("ON");
+        $('#btn-toggle-mappa span.map-state').text("OFF");
         $('#mapid').hide()
         window.graph.width(window.innerWidth);
         //Graph = ForceGraph3D()(elemXl);
@@ -330,7 +330,7 @@ function Toggle_Map() {
         //elem.innerHTML="";
         //Grafo();
     } else {
-        $('#btn-toggle-mappa span.map-state').text("OFF");
+        $('#btn-toggle-mappa span.map-state').text("ON");
         $('#mapid').show();
         window.graph.width(window.innerWidth/2);
         //scroll_to("#mapid")
