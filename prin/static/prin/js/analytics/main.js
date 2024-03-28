@@ -254,8 +254,13 @@ function loadGraph(data) {
         };
     }
     window.cy.add(elements);
-    runLayout(CY_DEFAULT_LAYOUT).once('layoutstop', () => loading(false));
-    // window.currentLayout = window.cy.layout(CY_DEFAULT_LAYOUT)/*.once('layoutstop', () => loading(false))*/.run();
+
+    if(window.cyMap) {
+        runLayout(CY_MAP_LAYOUT);
+    } else {
+        runLayout(CY_DEFAULT_LAYOUT).once('layoutstop', () => loading(false));
+        // window.currentLayout = window.cy.layout(CY_DEFAULT_LAYOUT)/*.once('layoutstop', () => loading(false))*/.run();
+    }
 }
 function toggleMap() {
     const mapBtn = document.querySelector('#toggleMapBtn');
@@ -282,7 +287,7 @@ function enableMap() {
 
     const cyMap = window.cyMap = window.cy.L({
         minZoom: 0,
-        maxZoom: 18,
+        maxZoom: 12,
     }, {
         getPosition: (node) => {
             const lng = node.data('lng');
@@ -354,7 +359,7 @@ function resetControls() {
 }
 
 function disableControls(disabled) {
-    $("#select-SLL").empty().prop('disabled', disabled);
+    $("#select-SLL").prop('disabled', disabled);
     $("#buttonCluster").prop('disabled', disabled);
     $("#dati-download").prop('disabled', disabled);
     $("#mappa-download").prop('disabled', disabled);
@@ -531,8 +536,9 @@ function changeRegione(reg, year, loadOnGraph = true) {
 
     loading(true);
     getSLL(reg, function (data) {
-        var slls = data.nodes;
-        console.log(slls);
+        const slls = data.nodes;
+
+        sllDropdown.empty();
         if (slls.length > 0) {
             sllDropdown.append(`<option value="">Seleziona un'Area Metropolitana/SLL</option>`);
         }
@@ -554,7 +560,7 @@ function changeRegione(reg, year, loadOnGraph = true) {
             loadGraph(data);
         }
 
-        // loading(false);
+        loading(false);
     });
 }
 

@@ -132,7 +132,7 @@ function Grafo(gData) {
             var popup = L.popup()
                 .setLatLng(L.latLng(node))
                 .setContent(String(node.caption))
-                .openOn(mymap);
+                .openOn(window.map);
         })
         .onNodeRightClick(node =>{
             node.color="#00FF00"
