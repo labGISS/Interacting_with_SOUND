@@ -264,15 +264,18 @@ function loadGraph(data) {
 }
 function toggleMap() {
     const mapBtn = document.querySelector('#toggleMapBtn');
+    const mapText = mapBtn.querySelector('span.map-state');
 
     if (!window.cyMap) {
         enableMap();
         mapBtn.classList.remove('btn-outline-red');
         mapBtn.classList.add('btn-red');
+        mapText.innerHTML = "ON";
     } else {
         disableMap();
         mapBtn.classList.remove('btn-red');
         mapBtn.classList.add('btn-outline-red');
+        mapText.innerHTML = "OFF";
     }
 }
 
