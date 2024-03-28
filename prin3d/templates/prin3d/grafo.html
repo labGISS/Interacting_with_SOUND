@@ -53,7 +53,6 @@
                             <button type="button" class="btn btn-outline-danger mx-3 my-2" style="width: 90px">
                                 Trend <br>
                                 <img src="{% static 'prin/imgs/Trend.webp' %}" style="width: 40px" alt="">
-
                             </button>
                         </li>
                     </ul>
@@ -65,7 +64,7 @@
         <!-- Parte centrale del sito web -->
         <main class="container-fluid">
             <div class="filter-form-container row">
-                <form class="col-md-12" id="aziendeFilterForm">
+                <form class="col-md-8" id="aziendeFilterForm">
                     <span class="nav-item"> Collegamenti con minimo </span>
                     <input id="aziendeFilterInput" class="form-control d-inline" type="number" placeholder="numero" value="0" aria-label="Filtra">
                     <span class="">aziende</span>
@@ -75,6 +74,30 @@
                         <span class="on-loading sr-only visually-hidden">Loading...</span>
                     </button>
                 </form>
+                <div class="col-md-4">
+                    <div class="row">
+{#                        <div class="col-9">#}
+{#                            <div class="card">#}
+{#                                <div class="card-body">#}
+{#                                    <div id="details" class="card-text"></div>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
+                        <div class="col-2">
+                            <button disabled type="button" class="btn btn-red" id="btn-toggle-testo" onclick="Toggle_Testo()">
+                                <span>Testo</span>
+                            </button>
+
+                        </div>
+                        <div class="col-2">
+                            <button disabled style="width: 120px" type="button" class="btn btn-red" id="btn-toggle-mappa" onclick="Toggle_Map()">
+                                <span>Mappa</span>
+                                <span class="map-state">OFF</span>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
             </div>
             <div class="row display-container">
                 <div id="3d-graph" class="col-md-6 black"></div>

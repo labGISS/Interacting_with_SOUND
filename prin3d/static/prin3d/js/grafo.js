@@ -53,6 +53,7 @@ function startLoading(unitsFilter) {
     const loadingSpinnerElements = loadingBtn.querySelectorAll('.on-loading');
     const filterText = loadingBtn.querySelector('.loading-complete');
 
+    const otherBtn = document.querySelectorAll('button');
     loadingSpinnerElements.forEach(el=> el.classList.remove('visually-hidden'));
     filterText.classList.add('visually-hidden');
     loadingBtn.setAttribute('disabled', "");
@@ -64,6 +65,7 @@ function startLoading(unitsFilter) {
         loadingSpinnerElements.forEach(el=> el.classList.add('visually-hidden'));
         filterText.classList.remove('visually-hidden');
         loadingBtn.removeAttribute('disabled');
+        otherBtn.forEach(el => el.removeAttribute('disabled'));
 
     });
 }
@@ -296,6 +298,51 @@ function loadMap(sllData, gData) {
     }
 }
 
+function Toggle_Testo() {
+    window.state.text = !window.state.text;
+    if (window.state.text) {
+        $('#btn-toggle-testo').text("Sfere");
+        window.graph.nodeThreeObject(node => {
+            const sprite = new SpriteText(node.caption);
+            sprite.material.depthWrite = false; // make sprite background transparent
+            sprite.color = node.color;
+            sprite.textHeight = 8;
+            return sprite;
+        });
+    }else {
+        $('#btn-toggle-testo').text("Testo");
+        window.graph.nodeThreeObject(node => {
+            const sprite = new THREE.Mesh(
+                new THREE.SphereGeometry(10),
+                THREE.SphereGeometry
+            )})
+    }
+}
+
+function Toggle_Map() {
+    if (window.state.map) {
+        $('#btn-toggle-mappa span.map-state').text("ON");
+        $('#mapid').hide()
+        window.graph.width(window.innerWidth);
+        //Graph = ForceGraph3D()(elemXl);
+        //Graph.width(window.width)
+        //elem.innerHTML="";
+        //Grafo();
+    } else {
+        $('#btn-toggle-mappa span.map-state').text("OFF");
+        $('#mapid').show();
+        window.graph.width(window.innerWidth/2);
+        //scroll_to("#mapid")
+    }
+    window.state.map = !window.state.map;
+}
+
+// init state
+window.state = {
+    text: false,
+    map: true
+}
+
 const form = document.querySelector("#aziendeFilterForm");
 form.addEventListener('submit', (evt) => {
     evt.preventDefault();
@@ -304,3 +351,8 @@ form.addEventListener('submit', (evt) => {
 });
 
 $("#spinner").hide()
+
+
+window.addEventListener('resize', function(event) {
+        graph.height(document.querySelector('.display-container').clientHeight)
+}, true);
