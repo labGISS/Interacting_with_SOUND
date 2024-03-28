@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block head_title %}
+    Info
+{% endblock head_title %}
+
 {% block css %}
     <link href="{% static 'prin/css/style.css' %}" rel="stylesheet" type="text/css">
     <link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
@@ -23,7 +27,6 @@
     </style>
 {% endblock css %}
 
-{% block head_title %} Info {% endblock %}
 {% block content %}
     <div data-spy="scroll" data-target="#EpicNavbar">
         <nav id="EpicNavbar" class="navbar navbar-light bg-light px-3 fixed-top">
