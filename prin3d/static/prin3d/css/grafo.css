@@ -18,3 +18,9 @@ main {
 .display-container .black:not(:empty) {
     background-color: black;
 }
+
+
+/*map utilities*/
+path.no-cursor {
+    cursor: default;
+}

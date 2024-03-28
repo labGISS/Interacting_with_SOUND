@@ -176,7 +176,29 @@ function Grafo(gData) {
 }
 
 function loadMap(sllData, gData) {
+    const layerDefaultStyle = {
+        color: '#a34662',
+        opacity: 1,
+        fillColor:'#0000f0',
+        fillOpacity:0.3,
+        weight: 1,
+        className: 'no-cursor',
+    };
+
+    const pointDefaultStyle = {
+        color: '#773248',
+        fillColor: '#773248',
+        fillOpacity: 1,
+        radius: 2000
+    };
+
     const nodes = gData.nodes;
+    const lc = {};
+
+    if (window.map) {
+        window.map.remove();
+        window.map = undefined;
+    }
 
     const mymap = window.map = L.map('mapid', {
         zoomAnimation: true,
@@ -192,16 +214,22 @@ function loadMap(sllData, gData) {
         if (feature.properties && feature.properties.SLL_2011) {
             layer.bindPopup(String(feature.properties.SLL_2011));
         }
+
+        layer.on('mouseover', e => {
+            layer.setStyle({
+                // weight: 2
+            });
+        })
+
+        layer.on('mouseout', e => {
+            layer.setStyle(layerDefaultStyle);
+        });
     }
 
     const nodes_ids = nodes.map(el => el.id);
 
     let gl = L.geoJSON(sllData, {
-        color: '#ff0000',
-        opacity: 1,
-        fillColor:'#0000f0',
-        fillOpacity:0.4,
-        weight: 1,
+        style: layerDefaultStyle,
         filter: function(feature, layer) {
             return nodes_ids.includes(feature.properties.SLL_2011);
         },
@@ -213,18 +241,33 @@ function loadMap(sllData, gData) {
         // element[0] = source
         // element[1] = target
         // element[2] = link
-        const lc = {};
 
         if (element.hasOwnProperty('lat') && element.hasOwnProperty('lng')) {
             const ll = L.latLng(element.lat,element.lng);
-            lc[element.id] = L.circle(ll, {
-                color: '#0000ff',
-                fillColor: '#0000ff',
-                fillOpacity: 0.5,
-                radius: 2000
-            }).addTo(mymap);
+            lc[element.id] = L.circle(ll, pointDefaultStyle).addTo(mymap);
 
             lc[element.id].on('click', onMarkerClick)
+            lc[element.id].on('mouseover', (e) => {
+                const layer = e.sourceTarget;
+                layer.setRadius(3000);
+
+                // highlight also the layer
+                const sllLayer = gl.getLayers().find((l) => {
+                    return l.feature.properties.SLL_2011 === element.id;
+                }).setStyle({
+                    weight: 2
+                });
+            });
+
+            lc[element.id].on('mouseout', (e) => {
+                const layer = e.sourceTarget;
+                layer.setRadius(pointDefaultStyle.radius);
+
+                // remove highlight also to the layer
+                const sllLayer = gl.getLayers().find((l) => {
+                    return l.feature.properties.SLL_2011 === element.id;
+                }).setStyle(layerDefaultStyle);
+            });
         }
 
         // L.marker(ll)
