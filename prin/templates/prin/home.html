@@ -18,20 +18,23 @@
             <div class="col-2"><a href="https://www.unipa.it/"><img src="{% static 'prin/imgs/logo-uni-palermo.webp' %}" style="width: 100%"></a></div>
         </div>
     </div>
-    <div class="container px-5 text-center">
+    <div class="container px-4">
+        <div class="row align-items-center text-center">
+            <p class="lead">Il progetto SOUND è finanziato dal MIUR e vede una collaborazione tra l’Università degli Studi di Salerno con il Dipartimento di Informatica, l’Università Mediterranea di Reggio Calabria con il Dipartimento di Patrimonio, Architettura e Urbanistica, l’Università degli Studi di Palermo con il Dipartimento di Scienze economiche, aziendali e statistiche.</p>
+        </div>
         <div class="row align-items-center">
-            <div class="col-4">
-                <p style="font-size: 20px"> Questo progetto vede la collaborazione delle Universit&agrave; di Salerno, Reggio Calabria e Palermo.
-                    Lo scopo &egrave quello di analizzare quali aziende sono maggiormente sviluppate all'interno del territorio
-                    interessato. </p>
+            <div class="col-5 text-center">
+                {#                <p class="lead"> Questo progetto vede la collaborazione delle Università di Salerno, Reggio Calabria e Palermo. Lo scopo è quello di analizzare quali aziende sono maggiormente sviluppate all'interno del territorio interessato.</p>#}
+                <p class="">Scopo del progetto è evidenziare i diversi pattern della distribuzione di conoscenza all’interno del contesto regionale analizzando le forze che determinano la geografia regionale dei flussi di innovazione. Con l’introduzione di meccanismi di rigenerazione urbana in ambienti di business è possibile favorire iniziative di clustering per la convergenza della conoscenza in processi di individuazione dell’imprenditorialità locale.</p>
+                <p>L’integrazione di tutti questi aspetti viene gestita da una piattaforma in cui il modello di open innovation può trovare una configurazione operativa.</p>
             </div>
-            <div class="col-8">
+            <div class="col-7">
                 <div class="container border border-secondary d-flex justify-content-evenly container-home img-hover-zoom"
-                     style="height: 400px;" >
+                     style="height: 350px;" >
                     <img src="{% static 'prin/imgs/Sfondo.PNG' %}" class="imgSfondo">
                     <div class="container px-5 d-flex justify-content-evenly d-flex align-items-center container_button">
                         <a href="{% url 'prin:analytics' %}">
-                            <button type="button" class="btn btn-dark my-5 btn-lg">Esplora</button>
+                            <button type="button" class="btn btn-red my-5 btn-lg">Esplora</button>
                         </a>
                     </div>
                 </div>
@@ -42,23 +45,23 @@
 
 {% block scripts %}
     <!-- Option 1: Bootstrap Bundle with Popper -->
-{#    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"#}
-{#            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"#}
-{#            crossorigin="anonymous"></script>#}
+    {#    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"#}
+    {#            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"#}
+    {#            crossorigin="anonymous"></script>#}
     <!-- Jquery AJAX -->
-    
+
     <script type="text/javascript" src="//code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-{#    <script type="text/javascript" src="https://unpkg.com/cytoscape@3.21.0/dist/cytoscape.min.js"></script>#}
-{#    <script src="https://d3js.org/d3-dispatch.v1.min.js"></script>#}
-{#    <script src="https://d3js.org/d3-quadtree.v1.min.js"></script>#}
-{#    <script src="https://d3js.org/d3-timer.v1.min.js"></script>#}
-{#    <script src="https://d3js.org/d3-force.v2.min.js"></script>#}
-{#    <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js" integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ==" crossorigin=""></script>#}
-{#    <script type="text/javascript" src="{% static 'vendor/cytoscape-leaflet.js' %}"></script>#}
-{#    <script>#}
-{#        window['d3-force'] = d3#}
-{#    </script>#}
-{#    <script src="{% static 'vendor/cytoscape-d3-force.js' %}"></script>#}
+    {#    <script type="text/javascript" src="https://unpkg.com/cytoscape@3.21.0/dist/cytoscape.min.js"></script>#}
+    {#    <script src="https://d3js.org/d3-dispatch.v1.min.js"></script>#}
+    {#    <script src="https://d3js.org/d3-quadtree.v1.min.js"></script>#}
+    {#    <script src="https://d3js.org/d3-timer.v1.min.js"></script>#}
+    {#    <script src="https://d3js.org/d3-force.v2.min.js"></script>#}
+    {#    <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js" integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ==" crossorigin=""></script>#}
+    {#    <script type="text/javascript" src="{% static 'vendor/cytoscape-leaflet.js' %}"></script>#}
+    {#    <script>#}
+    {#        window['d3-force'] = d3#}
+    {#    </script>#}
+    {#    <script src="{% static 'vendor/cytoscape-d3-force.js' %}"></script>#}
     <script src="{% static 'prin/js/analytics/main.js' %}"></script>
     <script src="{% static 'prin/js/analytics/services.js' %}"></script>
     <script>

@@ -28,7 +28,6 @@ main {
 
 .img-hover-zoom:hover img {
     transform: scale(1.1);
-    opacity: 1;
 }
 
 .container_button {
